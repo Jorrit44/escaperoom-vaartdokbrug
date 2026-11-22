@@ -120,6 +120,21 @@ label.chk{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--mut
 ul.plain{margin:0;padding-left:20px}
 ul.plain li{margin:5px 0;max-width:76ch}
 .badge{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;padding:1px 6px;border-radius:4px;border:1px solid var(--amber);color:var(--amber)}
+/* Geluidsknop, radioberichten, hervatten, blokkenteller */
+.disp.snd{cursor:pointer;min-width:64px;color:var(--ink)}
+.disp.snd span{font-size:18px;line-height:1.3}
+.toast{position:fixed;top:96px;right:16px;z-index:60;max-width:min(440px,calc(100vw - 32px));background:#0a131b;border:1px solid var(--amber);border-left:4px solid var(--amber);border-radius:8px;padding:12px 40px 12px 14px;font-family:var(--mono);font-size:14px;line-height:1.5;color:#f6d7a8;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.toast b{color:var(--amber)}
+.toast button{position:absolute;top:6px;right:6px;background:none;border:0;color:var(--muted);font-size:16px;padding:4px 8px}
+.resume{border:1px solid var(--amber);background:#1d1a10;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.teller{display:grid;grid-template-columns:auto auto minmax(60px,110px) auto auto;gap:6px;align-items:stretch;justify-content:start}
+.teller input{font-family:var(--mono);font-size:26px;font-weight:600;width:100%;min-width:0;text-align:center;background:#0a131b;color:var(--amber);border:1px solid var(--line);border-radius:6px;padding:6px}
+.teller .btn{padding:8px 12px;font-family:var(--mono)}
+@media (max-width:420px){.teller .btn{padding:8px 9px}.teller input{font-size:22px}}
+@media (max-width:860px){
+  .disp.snd{flex:0 0 auto;min-width:0;padding:3px 8px}.disp.snd small{display:none}
+  .toast{top:auto;bottom:16px;left:16px;right:16px;max-width:none}
+}
 footer{font-size:13px;color:var(--muted)}
 .hidden{display:none!important}
 .shake{animation:shake .5s 3}
@@ -135,6 +150,7 @@ footer{font-size:13px;color:var(--muted)}
       <div class="disp" id="clock"><small>TIJD</small>--:--</div>
       <div class="disp" id="pen"><small>STRAF</small>+00:00</div>
       <div class="letters" id="letters" aria-label="Verzamelde letters"></div>
+      <button class="disp snd" id="snd" type="button" aria-label="Geluid aan of uit"><small>GELUID</small><span id="snd-ico">🔊</span></button>
       <div class="radar"><small>SCHIP NADERT</small><svg viewBox="0 0 1000 300" xmlns="http://www.w3.org/2000/svg" id="radar" role="img" aria-label="Bovenaanzicht: het schip nadert de brug"></svg></div>
     </div>
   </header>
@@ -146,11 +162,20 @@ footer{font-size:13px;color:var(--muted)}
 /* =====================================================================
    INSTELLINGEN — hier pas je het spel aan
    ===================================================================== */
-const VERSIE='v11';
+const VERSIE='v12';
 const GROEP={nr:'XX',leden:[]};      // TODO groep: vul het groepsnummer en de namen in, bv. {nr:'07',leden:['Naam 1','Naam 2','Naam 3','Naam 4']}
 const TOTAL=45*60;                     // speeltijd in seconden (v10: 30 min, na speltest verhoogd)
 const START_KLOK=5*3600+58*60;         // verhaalklok bij de start: 05:58
 const HINT_STRAF=120, FOUT_STRAF=60;   // in seconden
+const OPSLAG='vaartdokbrug-spel';       // naam waaronder de browser de voortgang bewaart
+
+/* Radioberichten tijdens het spel: verschijnen als er nog 'rest' seconden over zijn */
+const RADIO=[
+  {rest:30*60,wie:'Schelde Trader',tekst:'Vaartdokbrug, hier de Schelde Trader. We varen het dok in aan vier knopen. Hoe staat het met de brug? Over.'},
+  {rest:15*60,wie:'Havenkapiteinsdienst',tekst:'Vaartdokbrug, het schip is nog een kwartier van de brug. Meld het zodra de brug open is. Over.'},
+  {rest:5*60,wie:'Schelde Trader',tekst:'Vaartdokbrug, we zien de brug en ze is nog dicht! We kunnen niet meer stoppen! Over.'},
+  {rest:60,wie:'Schelde Trader',tekst:'Nog één minuut! Alle bemanning naar achteren!'}
+];
 
 /* =====================================================================
    DE FICTIEVE BRUG
@@ -170,19 +195,64 @@ const BRUG=[
    RUIMTES — vaste volgorde, van zuid naar noord over de brug
    ===================================================================== */
 const ROOMS=[
-  {id:1,naam:'Brugwachtershuis',plaats:'zuidoever',hfst:'XVIII §1 · p. 208',letter:'L'},
-  {id:2,naam:'Kelder: ballastkist',plaats:'onder de zuidoever',hfst:'XVIII §3.1–3.2 · p. 210–211',letter:'A'},
-  {id:3,naam:'Machinekamer: vijzels',plaats:'kelder',hfst:'XVIII §3.1–3.2 · p. 210–211',letter:'S'},
-  {id:4,naam:'Pijler: opleggingen',plaats:'noordkant van de doorvaart',hfst:'XXIV §2 en §6 · p. 259–265',letter:'B'},
-  {id:5,naam:'Vaste overspanning: remkracht',plaats:'op het brugdek',hfst:'III §1.3 · p. 24–25',letter:'N'},
-  {id:6,naam:'Noordlandhoofd: brugdekvoeg',plaats:'noordoever',hfst:'III §4.1.1 en XXV · p. 39–40, 272–274',letter:'A'}
+  {id:1,naam:'Brugwachtershuis',plaats:'zuidoever',hfst:'XVIII §1 · p. 208'},
+  {id:2,naam:'Kelder: ballastkist',plaats:'onder de zuidoever',hfst:'XVIII §3.1–3.2 · p. 210–211'},
+  {id:3,naam:'Machinekamer: vijzels',plaats:'kelder',hfst:'XVIII §3.1–3.2 · p. 210–211'},
+  {id:4,naam:'Pijler: opleggingen',plaats:'noordkant van de doorvaart',hfst:'XXIV §2 en §6 · p. 259–265'},
+  {id:5,naam:'Vaste overspanning: remkracht',plaats:'op het brugdek',hfst:'III §1.3 · p. 24–25'},
+  {id:6,naam:'Noordlandhoofd: brugdekvoeg',plaats:'noordoever',hfst:'III §4.1.1 en XXV · p. 39–40, 272–274'}
 ];
-const FINAL_WORD='BALANS';
+const FINAL_WORD='BALANS';   // elke ruimte geeft één letter; de volgorde is per spel willekeurig
 
 /* =====================================================================
    STAAT, KLOK EN HULPFUNCTIES
    ===================================================================== */
-const S={start:null,penalty:0,running:false,solved:{},hints:0,fouten:0,current:1,ended:false,gm:false};
+const S={start:null,penalty:0,running:false,solved:{},hints:0,fouten:0,current:1,ended:false,gm:false,
+  letters:null,hintsUsed:{},radio:{},scherm:'room',r2n:0,r2ang:0,r2test:null};
+/* Letters van BALANS in willekeurige volgorde over de ruimtes, nooit al in de juiste volgorde */
+function schud(){const w=FINAL_WORD.split('');let a;do{a=w.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}while(a.join('')===FINAL_WORD);return a;}
+S.letters=schud();
+const letterVan=id=>S.letters[id-1];
+
+/* Voortgang bewaren in de browser, zodat vernieuwen de pagina het spel niet wist */
+const BEWAAR=['start','penalty','running','solved','hints','fouten','current','ended','gm','letters','hintsUsed','radio','scherm','r2n','r2test'];
+function bewaar(){try{const d={};BEWAAR.forEach(k=>d[k]=S[k]);localStorage.setItem(OPSLAG,JSON.stringify(d));}catch(e){}}
+function laad(){try{const d=JSON.parse(localStorage.getItem(OPSLAG)||'null');return d&&Array.isArray(d.letters)?d:null;}catch(e){return null;}}
+function wis(){try{localStorage.removeItem(OPSLAG);}catch(e){}}
+
+/* Geluid, gemaakt in de browser zelf (geen geluidsbestanden nodig) */
+const geluid=(()=>{
+  let ctx=null,aan=true;
+  try{aan=localStorage.getItem(OPSLAG+'-geluid')!=='uit';}catch(e){}
+  const init=()=>{try{if(!ctx){const AC=window.AudioContext||window.webkitAudioContext;if(AC)ctx=new AC();}if(ctx&&ctx.state==='suspended')ctx.resume();}catch(e){}return ctx;};
+  const toon=(freq,dur,type,vol,delay,filt)=>{if(!aan)return;const c=init();if(!c)return;const t=c.currentTime+(delay||0);const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+0.04);g.gain.setValueAtTime(vol,t+Math.max(0.05,dur-0.15));g.gain.exponentialRampToValueAtTime(0.0001,t+dur);let n=o;if(filt){const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=filt;o.connect(f);n=f;}n.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+0.05);};
+  const ruis=(dur,vol)=>{if(!aan)return;const c=init();if(!c)return;const b=c.createBuffer(1,Math.floor(c.sampleRate*dur),c.sampleRate);const d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(Math.random()<0.3?1:0.3);const s=c.createBufferSource();s.buffer=b;const f=c.createBiquadFilter();f.type='bandpass';f.frequency.value=1800;const g=c.createGain();g.gain.value=vol;s.connect(f);f.connect(g);g.connect(c.destination);s.start();};
+  return {
+    init,
+    get aan(){return aan;},
+    zet(v){aan=v;try{localStorage.setItem(OPSLAG+'-geluid',v?'aan':'uit');}catch(e){}},
+    hoorn(sterkte){const v=0.06+0.16*Math.max(0,Math.min(1,sterkte||0));toon(92,1.7,'sawtooth',v,0,420);toon(138,1.7,'sawtooth',v*0.6,0,420);},
+    radio(){ruis(0.35,0.1);},
+    fout(){toon(140,0.3,'square',0.07,0,900);},
+    goed(){toon(660,0.18,'sine',0.11);toon(880,0.32,'sine',0.11,0.15);},
+    open(){toon(523,0.22,'sine',0.11);toon(659,0.22,'sine',0.11,0.18);toon(784,0.5,'sine',0.11,0.36);}
+  };
+})();
+function toonGeluidsknop(){document.getElementById('snd-ico').textContent=geluid.aan?'🔊':'🔇';document.getElementById('snd').setAttribute('aria-pressed',String(!geluid.aan));}
+document.getElementById('snd').addEventListener('click',()=>{geluid.zet(!geluid.aan);toonGeluidsknop();if(geluid.aan)geluid.goed();});
+toonGeluidsknop();
+
+/* Radioberichten */
+function radioCheck(l){let laatste=null;RADIO.forEach((m,i)=>{if(m.rest<TOTAL&&!S.radio[i]&&l<=m.rest){S.radio[i]=true;laatste=m;}});if(laatste){bewaar();toonRadio(laatste,l);}}
+function toonRadio(m,l){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');
+  t.innerHTML=`📻 <b>${esc(m.wie)}:</b> "${esc(m.tekst)}"<button type="button" aria-label="Bericht sluiten">✕</button>`;
+  document.body.appendChild(t);
+  t.querySelector('button').addEventListener('click',()=>t.remove());
+  setTimeout(()=>t.remove(),14000);
+  geluid.radio();setTimeout(()=>geluid.hoorn(1-l/TOTAL),450);
+}
 const app=document.getElementById('app');
 let tick=null;
 let scherm=()=>intro();   // het scherm waar "Terug" naartoe gaat
@@ -197,12 +267,12 @@ function hud(){
   const l=left();const c=document.getElementById('clock');
   c.innerHTML=`<small>${S.gm?'SPELLEIDER':'TIJD'}</small>${S.gm?'—':fmt(Math.max(0,l))}`;c.classList.toggle('warn',!S.gm&&S.running&&l<300);
   document.getElementById('pen').innerHTML=`<small>STRAF</small>+${fmt(S.penalty)}`;
-  document.getElementById('letters').innerHTML=ROOMS.map(r=>`<span>${S.solved[r.id]?r.letter:''}</span>`).join('');
+  document.getElementById('letters').innerHTML=ROOMS.map(r=>`<span>${S.solved[r.id]?letterVan(r.id):''}</span>`).join('');
   radar();
-  if(S.running&&!S.gm&&!S.ended&&l<=0)gameOver();
+  if(S.running&&!S.gm&&!S.ended){if(l<=0)gameOver();else radioCheck(l);}
 }
-function startClock(){if(S.running)return;S.start=Date.now();S.running=true;tick=setInterval(hud,500);hud();}
-function penalty(s){if(S.gm)return;S.penalty+=s;hud();}
+function startClock(){if(S.running)return;S.start=Date.now();S.running=true;tick=setInterval(hud,500);bewaar();hud();}
+function penalty(s){if(!S.gm)S.penalty+=s;bewaar();hud();}
 function esc(t){return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 /* Tekening in een kader; klikken vergroot ze */
@@ -329,19 +399,50 @@ function ballastSVG(){
   const ar=(xx,labs,anc)=>`<line x1="${xx}" y1="85" x2="${xx}" y2="176" stroke="#f2a33a" stroke-width="3"/><polygon points="${xx-7},168 ${xx+7},168 ${xx},180" fill="#f2a33a"/>`+labs.map((l,i)=>`<text x="${anc==='end'?xx-10:xx+10}" y="${96+i*17}" ${MONO} font-size="${i%2?12:14}" fill="${i%2?'#f6d7a8':'#f2a33a'}" text-anchor="${anc}">${l}</text>`).join('');
   const dim=(a,b,y,t)=>`<line x1="${a}" y1="${y}" x2="${b}" y2="${y}" stroke="#93a4b3"/><line x1="${a}" y1="${y-6}" x2="${a}" y2="${y+6}" stroke="#93a4b3"/><line x1="${b}" y1="${y-6}" x2="${b}" y2="${y+6}" stroke="#93a4b3"/><text x="${(a+b)/2}" y="${y-6}" ${MONO} font-size="12" fill="#c9d4dd" text-anchor="middle">${t}</text>`;
   const g3=x(15.5)+150;   /* pijl G₃ iets verschoven zodat de labels niet overlappen; stippellijn toont het echte aangrijpingspunt */
-  return `<svg viewBox="0 0 1000 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Beweegbaar brugdek met staartligger en ballastkist">
+  /* Interactieve stand: aantal blokken, hoek van het brugdek en resultaat van de laatste test */
+  const n=S.r2n||0,ang=S.r2ang||0,test=S.r2test&&S.r2test.n===n?S.r2test:null,rust=ang<0.05;
+  const bx=x(-6.5)-42,bh=64,fh=Math.round(bh*Math.min(1,n/90));
+  const lagen=Array.from({length:Math.floor(fh/6)},(_,i)=>`<line x1="${bx+2}" x2="${bx+82}" y1="${196+bh-6*(i+1)}" y2="${196+bh-6*(i+1)}" stroke="#55687a"/>`).join('');
+  const M=R2_MOMENT-R2_BLOK*R2_ARM*n;   /* resulterend moment om het draaischarnier, + = sluitend */
+  let reactie='';
+  if(test&&rust&&M>0){const len=Math.round(10+Math.min(70,M/40)),kl=test.ok?'#4cc38a':'#ef6b5b';
+    reactie=`<line x1="${x(30)-8}" y1="${204+len}" x2="${x(30)-8}" y2="206" stroke="${kl}" stroke-width="4" marker-end="url(#r2-${test.ok?'g':'r'})"/>
+    <text x="${x(30)-24}" y="${Math.max(226,204+len)}" ${MONO} font-size="12" fill="${kl}" text-anchor="end">${test.ok?'neus rust licht op de pijler':'neus drukt zwaar op de pijler'}</text>`;}
+  const mk=(id,c)=>`<marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="${c}"/></marker>`;
+  return `<svg viewBox="0 0 1000 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Beweegbaar brugdek met staartligger en ballastkist met ${n} blokken">
+  <defs>${mk('r2-g','#4cc38a')}${mk('r2-r','#ef6b5b')}</defs>
   <rect width="1000" height="380" fill="#0d1822"/>
   <polygon points="120,190 350,190 350,380 120,380" fill="#2c3b49"/><rect x="140" y="200" width="190" height="168" fill="#0d1822" stroke="#3a4b5b" stroke-width="2"/>
   <rect x="350" y="290" width="650" height="90" fill="#173a52"/>
-  <rect x="${HX}" y="180" width="${x(30)-HX}" height="18" fill="#9fb3c6" stroke="#0a131b"/>
-  <rect x="${x(-6.5)}" y="184" width="${6.5*PX}" height="12" fill="#9fb3c6" stroke="#0a131b"/>
-  <rect x="${x(-6.5)-42}" y="196" width="84" height="64" fill="#55687a" stroke="#0a131b"/><text x="${x(-6.5)}" y="233" ${MONO} font-size="11" fill="#e6edf2" text-anchor="middle">BALLASTKIST</text>
+  <rect x="912" y="198" width="48" height="182" fill="#3a4b5b"/><text x="936" y="372" ${MONO} font-size="11" fill="#c9d4dd" text-anchor="middle">pijler</text>
+  <g transform="rotate(${-ang.toFixed(2)} ${HX} 190)">
+    <rect x="${HX}" y="180" width="${x(30)-HX}" height="18" fill="#9fb3c6" stroke="#0a131b"/>
+    <rect x="${x(-6.5)}" y="184" width="${6.5*PX}" height="12" fill="#9fb3c6" stroke="#0a131b"/>
+    <rect x="${bx}" y="196" width="84" height="${bh}" fill="#1a2733" stroke="#0a131b"/>
+    <rect x="${bx}" y="${196+bh-fh}" width="84" height="${fh}" fill="#8a99a7"/>${lagen}
+    <rect x="${bx}" y="196" width="84" height="${bh}" fill="none" stroke="#9fb3c6"/>
+    <text x="${x(-6.5)}" y="212" ${MONO} font-size="11" fill="#e6edf2" stroke="#0a131b" stroke-width="3" paint-order="stroke" text-anchor="middle">BALLASTKIST</text>
+    <text x="${x(-6.5)}" y="250" ${MONO} font-size="12" font-weight="600" fill="#f2a33a" stroke="#0a131b" stroke-width="3" paint-order="stroke" text-anchor="middle">${n} blokken</text>
+  </g>
   <circle cx="${HX}" cy="190" r="8" fill="#0d1822" stroke="#f2a33a" stroke-width="3"/>
-  <text x="${HX+8}" y="172" ${MONO} font-size="12" fill="#f2a33a">draaischarnier</text>
+  ${rust?`<text x="${HX+8}" y="172" ${MONO} font-size="12" fill="#f2a33a">draaischarnier</text>
   ${ar(x(13.5),['G₁ = 1 500 kN','stalen brugdek'],'end')}${ar(x(15),['G₂ = 230 kN','slijtlaag'],'start')}${ar(g3,['G₃ = 120 kN','uitrusting'],'start')}
   <line x1="${x(15.5)}" y1="178" x2="${g3}" y2="178" stroke="#f2a33a" stroke-dasharray="4 4"/><circle cx="${x(15.5)}" cy="178" r="4" fill="#f2a33a"/>
-  ${dim(HX,x(13.5),236,'13,5 m')}${dim(HX,x(15),262,'15,0 m')}${dim(HX,x(15.5),288,'15,5 m')}${dim(x(-6.5),HX,288,'b = 6,5 m')}
+  ${dim(HX,x(13.5),236,'13,5 m')}${dim(HX,x(15),262,'15,0 m')}${dim(HX,x(15.5),288,'15,5 m')}`:`<text x="400" y="60" ${MONO} font-size="14" font-weight="600" fill="#ef6b5b">⚠ het brugdek komt vanzelf omhoog</text>`}
+  ${dim(x(-6.5),HX,288,'b = 6,5 m')}
+  ${reactie}
   </svg>`;
+}
+/* Ruimte 2: getallen voor de balans */
+const R2_MOMENT=1500*13.5+230*15+120*15.5, R2_BLOK=50, R2_ARM=6.5;   /* 25 560 kNm, 50 kN per blok, arm 6,5 m */
+const duizend=v=>String(v).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+const r2info=()=>`${S.r2n||0} blokken · ${duizend((S.r2n||0)*R2_BLOK)} kN ballast`;
+function tekenRuimte(){if(S.current!==2)return;const rf=document.querySelector('#roomfig .fig-svg');if(rf)rf.innerHTML=PUZ[2].fig();}
+function animeerKist(doel){
+  const van=S.r2ang||0,t0=performance.now(),dur=800,reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const stap=now=>{if(S.current!==2)return;const p=reduce?1:Math.min(1,(now-t0)/dur),e=1-Math.pow(1-p,3);S.r2ang=van+(doel-van)*e;tekenRuimte();if(p<1)requestAnimationFrame(stap);};
+  requestAnimationFrame(stap);
+  setTimeout(()=>{if(S.current===2&&Math.abs(S.r2ang-doel)>0.01){S.r2ang=doel;tekenRuimte();}},dur+150);   /* eindstand ook als de animatie niet liep */
 }
 function jackSVG(){
   const H=[400,180],t=66;/* 22 px per m */
@@ -471,19 +572,39 @@ const PUZ={
 },
 2:{
   titel:'De ballastkist is leeggelopen',
-  tekst:'Bij de laatste herstelling werd de ballastkist leeggemaakt. Naast de kist liggen betonblokken van 50 kN. Hoeveel blokken leg je in de kist? Vul de kist zoals de cursus het voorschrijft voor een basculebrug.',
+  tekst:'Bij de laatste herstelling werd de ballastkist leeggemaakt. Naast de kist liggen betonblokken van 50 kN. Leg het juiste aantal blokken in de kist en test de balans: het brugdek moet uitgebalanceerd zijn zoals de cursus het voorschrijft voor een basculebrug. Elke mislukte test kost 1 minuut.',
   fig:()=>ballastSVG(),
   dossier:[['Eigengewicht stalen brugdek G₁','1 500 kN'],['Slijtlaag G₂','230 kN'],['Leuningen, verlichting, slagboom G₃','120 kN'],['Arm G₁ tot draaischarnier','13,5 m'],['Arm G₂','15,0 m'],['Arm G₃','15,5 m'],['Arm ballastkist b','6,5 m'],['Staartligger en lege kist','verwaarloosd']],
-  form:()=>`<div class="lock"><input id="code" inputmode="decimal" maxlength="6" placeholder="—" aria-label="Aantal blokken"><button class="btn" id="try">Vul de kist</button></div>`,
+  form:()=>`<div class="teller" role="group" aria-label="Blokken in de ballastkist">
+      <button class="btn ghost" type="button" data-d="-10" aria-label="10 blokken eruit">−10</button><button class="btn ghost" type="button" data-d="-1" aria-label="1 blok eruit">−1</button>
+      <input id="code" inputmode="numeric" maxlength="4" value="${S.r2n||0}" aria-label="Aantal blokken in de kist">
+      <button class="btn ghost" type="button" data-d="1" aria-label="1 blok erbij">+1</button><button class="btn ghost" type="button" data-d="10" aria-label="10 blokken erbij">+10</button></div>
+    <p class="small muted" id="r2info">${r2info()}</p>
+    <button class="btn" id="try">Test de balans</button>`,
+  init(){
+    const inp=document.getElementById('code'),out=document.getElementById('out');
+    const zet=v=>{v=Math.max(0,Math.min(150,Math.round(v)));S.r2n=v;S.r2ang=0;inp.value=v;document.getElementById('r2info').textContent=r2info();tekenRuimte();bewaar();};
+    app.querySelectorAll('[data-d]').forEach(b=>b.addEventListener('click',()=>{out.innerHTML='';zet((S.r2n||0)+(+b.dataset.d));}));
+    inp.addEventListener('change',()=>{const v=num('code');if(isNaN(v))return zet(S.r2n||0);
+      if(v>150){out.innerHTML=`<div class="msg info"><b>Let op</b>Dat lijkt een gewicht in kN. De kist telt blokken van 50 kN.</div>`;inp.value=S.r2n||0;return;}
+      if(!Number.isInteger(v)){out.innerHTML=`<div class="msg info"><b>Let op</b>Je kan geen deel van een blok leggen. Rond af, maar naar welke kant?</div>`;inp.value=S.r2n||0;return;}
+      out.innerHTML='';zet(v);});
+  },
   check(){const v=num('code');
-    if(isNaN(v))return {leeg:true,t:'Vul een aantal blokken in.'};
+    if(isNaN(v)||v===0)return {leeg:true,t:'Leg eerst blokken in de kist.'};
+    if(v>150)return {zacht:true,t:'Dat lijkt een gewicht in kN. De kist telt blokken van 50 kN.'};
     if(!Number.isInteger(v))return {zacht:true,t:'Je kan geen deel van een blok leggen. Rond af, maar naar welke kant?'};
+    S.r2n=v;
     if(v===78)return {ok:true};
-    if(v===79)return {t:'Bijna. Met 79 blokken weegt de ballast net te zwaar: de brug zou vanzelf willen openen. Wat zegt de cursus over de zin van het resulterende moment?'};
-    if(v>79&&v<85)return {t:'Te zwaar: de ballast trekt het brugdek omhoog.'};
-    if(v>=70&&v<78)return {t:'Te licht: de vijzels zouden te veel van het gewicht moeten dragen.'};
-    if(v>=3000)return {t:'Je antwoordt in kN. De vraag is hoeveel blokken van 50 kN.'};
-    return {t:'De vijzels slaan af. Het evenwicht om het draaischarnier klopt niet.'};},
+    if(v===79)return {t:'Het brugdek komt vanzelf omhoog: met 79 blokken weegt de ballast net te zwaar. Wat zegt de cursus over de zin van het resulterende moment?'};
+    if(v>79)return {t:'Te zwaar: de ballast trekt het brugdek omhoog. Zo blijft de brug niet dicht liggen.'};
+    if(v>=70)return {t:'Te licht: de neus van het brugdek drukt nog zwaar op de pijler. De vijzels zouden dat gewicht bij elke opening mee moeten heffen.'};
+    return {t:'Veel te licht: het brugdek is nauwelijks uitgebalanceerd. Reken het evenwicht om het draaischarnier uit.'};},
+  na(r){   /* na elke test: brugdek beweegt naar de stand die bij het aantal blokken hoort */
+    S.r2test={n:S.r2n,ok:!!r.ok};
+    const M=R2_MOMENT-R2_BLOK*R2_ARM*S.r2n;
+    animeerKist(M>=0?0:Math.min(15,3+(-M)/50));
+  },
   cursus:'XVIII §3.1–3.2 (p. 210–211): het brugdek wordt uitgebalanceerd door een ballastkist aan het einde van de staartligger, zodat G_dek·d ≈ G_ballast·b. Er moet steeds een zekere onbalans blijven: de ballastkist wordt zo uitgebalanceerd dat een licht sluitend resulterend moment ontstaat om het draaischarnier.',
   hints:['Σ G·d = 1 500·13,5 + 230·15,0 + 120·15,5. Deel door de arm b = 6,5 m en door 50 kN per blok.','Exact evenwicht vraagt 78,6 blokken. Rond je naar boven of naar beneden af als er een licht sluitend moment moet overblijven?'],
   kern:'Uitbalanceren van een basculebrug: G_dek·d ≈ G_ballast·b, met een licht sluitend resulterend moment.',
@@ -578,7 +699,12 @@ function groepTekst(){return `groep ${GROEP.nr}${GROEP.leden.length?' ('+GROEP.l
 
 function intro(){
   S.ended=false;scherm=intro;
-  app.innerHTML=`<section class="panel stack">
+  const d=laad(),lopend=d&&!d.ended&&(d.running||d.gm);
+  let hervatTekst='';
+  if(lopend){const n=Object.keys(d.solved||{}).length,rest=TOTAL-((Date.now()-d.start)/1000+(d.penalty||0));
+    hervatTekst=`<div class="resume"><div><b>Er loopt nog een spel.</b> ${n} van de 6 ruimtes opgelost${d.gm?' (spelleidermodus)':rest>0?`, nog ${fmt(rest)} op de klok`:', maar de tijd is intussen op'}.</div>
+      <div class="row"><button class="btn" id="resume">Ga verder</button><button class="btn ghost" id="fresh">Opnieuw beginnen</button></div></div>`;}
+  app.innerHTML=`<section class="panel stack">${hervatTekst}
     <div class="two">
       <div class="stack">
         <div class="eyebrow">Maandag · ${klok(START_KLOK)} · Vaartdok, haven van Gent</div>
@@ -588,7 +714,7 @@ function intro(){
         <div class="row"><button class="btn" id="go">Start de klok (${TOTAL/60} minuten)</button>
           <label class="chk"><input type="checkbox" id="gm"> Spelleidermodus (geen klok, alle ruimtes open)</label></div>
         <div class="row hidden" id="demo"><button class="btn ghost" id="demo-lose">Voorbeeld: game over</button><button class="btn ghost" id="demo-win">Voorbeeld: gewonnen</button></div>
-        <p class="small muted">In elke ruimte staat een stukje cursus dat je gratis mag lezen. Een extra hint kost 2 minuten, een fout antwoord 1 minuut. Elke opgeloste ruimte geeft een letter; samen vormen ze het wachtwoord om de brug te openen. Klik op een tekening om ze te vergroten.</p>
+        <p class="small muted">In elke ruimte staat een stukje cursus dat je gratis mag lezen. Een extra hint kost 2 minuten, een fout antwoord 1 minuut. Elke opgeloste ruimte geeft een letter; samen vormen ze het wachtwoord om de brug te openen. Klik op een tekening om ze te vergroten. Zet het geluid aan voor de radioberichten van het schip. Jullie voortgang wordt in deze browser bewaard.</p>
         <p class="small"><a href="#over" data-about>Over dit spel: leerdoelen en bronnen →</a></p>
       </div>
       <div class="stack">
@@ -603,7 +729,19 @@ function intro(){
   gm.addEventListener('change',()=>document.getElementById('demo').classList.toggle('hidden',!gm.checked));
   document.getElementById('demo-lose').addEventListener('click',()=>{S.gm=true;gameOver();});
   document.getElementById('demo-win').addEventListener('click',()=>{S.gm=true;win();});
-  document.getElementById('go').addEventListener('click',()=>{S.gm=gm.checked;if(!S.gm)startClock();else hud();room(1);});
+  document.getElementById('go').addEventListener('click',()=>{S.gm=gm.checked;geluid.init();if(!S.gm){geluid.radio();setTimeout(()=>geluid.hoorn(0.15),450);startClock();}else hud();room(1);});
+  if(lopend){
+    document.getElementById('resume').addEventListener('click',()=>hervat(d));
+    document.getElementById('fresh').addEventListener('click',()=>{wis();location.reload();});
+  }
+}
+/* Een bewaard spel verderzetten; de klok liep intussen gewoon door */
+function hervat(d){
+  Object.assign(S,d);S.r2ang=0;
+  geluid.init();
+  if(S.running&&!S.gm){clearInterval(tick);tick=setInterval(hud,500);}
+  hud();if(S.ended)return;
+  if(S.scherm==='finale')finale();else room(S.current||1);
 }
 
 function about(){
@@ -636,7 +774,7 @@ const nextRoom=()=>{for(const r of ROOMS)if(!S.solved[r.id])return r.id;return 7
 
 function room(id){
   if(S.ended)return;
-  S.current=id;scherm=()=>room(S.current);
+  S.current=id;S.scherm='room';scherm=()=>room(S.current);bewaar();
   const P=PUZ[id],R=ROOMS[id-1],done=!!S.solved[id];
   app.innerHTML=`<div class="stack">${routeBar()}
   <div class="game">
@@ -652,31 +790,37 @@ function room(id){
       ${P.dossier?`<table class="dossier"><thead><tr><th>Uit het dossier</th><th style="text-align:right">Waarde</th></tr></thead><tbody>${P.dossier.map(d=>`<tr><td>${d[0]}</td><td class="n">${d[1]}</td></tr>`).join('')}</tbody></table>`:''}
       <div class="stack ${done?'hidden':''}" id="form">${P.form()}</div>
       <div id="out" aria-live="polite"></div>
-      <div class="stack ${done?'hidden':''}" id="hints">${P.hints.map((h,i)=>`<details class="hint" data-straf><summary>Hint ${i+1} (−2 min)</summary><p>${esc(h)}</p></details>`).join('')}</div>
+      <div class="stack ${done?'hidden':''}" id="hints">${P.hints.map((h,i)=>hintHTML(`${id}-${i}`,`Hint ${i+1} (−2 min)`,h)).join('')}</div>
       <div class="row" id="nav"></div>
     </section></div></div>`;
   app.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>room(+b.dataset.go)));
-  app.querySelectorAll('details[data-straf]').forEach(d=>d.addEventListener('toggle',()=>{if(d.open&&!d.dataset.used){d.dataset.used='1';S.hints++;penalty(HINT_STRAF);}}));
+  koppelHints();
   const tr=document.getElementById('try');
   if(tr){tr.addEventListener('click',()=>attempt(id));app.querySelectorAll('#form input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')attempt(id);}));}
+  if(P.init&&!done)P.init();
   window.scrollTo(0,0);
   const first=app.querySelector('#form input,#form select');if(first&&!done)first.focus({preventScroll:true});
   if(done)showSolved(id);
 }
 
+/* Hints: een betaalde hint blijft open en wordt niet opnieuw aangerekend, ook niet na vernieuwen */
+function hintHTML(sleutel,titel,tekst){const u=S.hintsUsed[sleutel];return `<details class="hint" data-straf="${sleutel}"${u?' open data-used="1"':''}><summary>${titel}</summary><p>${esc(tekst)}</p></details>`;}
+function koppelHints(){app.querySelectorAll('details[data-straf]').forEach(d=>d.addEventListener('toggle',()=>{if(d.open&&!d.dataset.used){d.dataset.used='1';S.hintsUsed[d.dataset.straf]=true;S.hints++;penalty(HINT_STRAF);}}));}
+
 function attempt(id){
   if(S.ended)return;
-  const r=PUZ[id].check();
+  const P=PUZ[id],r=P.check();
   const out=document.getElementById('out');
   if(r.leeg||r.zacht){out.innerHTML=`<div class="msg info"><b>${r.leeg?'Nog niet volledig':'Let op'}</b>${esc(r.t)}</div>`;return;}
-  if(r.ok){S.solved[id]=true;hud();showSolved(id);return;}
-  S.fouten++;penalty(FOUT_STRAF);
+  if(P.na)P.na(r);
+  if(r.ok){S.solved[id]=true;geluid.goed();bewaar();hud();showSolved(id);return;}
+  S.fouten++;geluid.fout();penalty(FOUT_STRAF);
   out.innerHTML=`<div class="msg no"><b>Fout, −1 minuut</b>${esc(r.t)}</div>`;
 }
 function showSolved(id){
   document.getElementById('form').classList.add('hidden');
   document.getElementById('hints').classList.add('hidden');
-  document.getElementById('out').innerHTML=`<div class="msg ok"><b>Opgelost · letter: ${ROOMS[id-1].letter}</b>${esc(PUZ[id].uitleg)}</div>`;
+  document.getElementById('out').innerHTML=`<div class="msg ok"><b>Opgelost · letter: ${letterVan(id)}</b>${esc(PUZ[id].uitleg)}</div>`;
   const h=document.querySelector('#here .fig-svg');if(h)h.innerHTML=elevation({hl:id});
   const rf=document.querySelector('#roomfig .fig-svg');if(rf)rf.innerHTML=PUZ[id].fig();
   const n=nextRoom(),nav=document.getElementById('nav');
@@ -687,25 +831,25 @@ function showSolved(id){
 
 function finale(){
   if(S.ended)return;
-  scherm=finale;
-  const got=ROOMS.map(r=>r.letter);
+  scherm=finale;S.scherm='finale';bewaar();
+  const got=S.letters;
   app.innerHTML=`<section class="panel stack">
     <div class="eyebrow">Brugwachtershuis · laatste stap</div>
     <h2>Het systeem vraagt het wachtwoord</h2>
     <p>Alle storingen zijn opgelost. Op het scherm verschijnt: <b>"Geef het principe waarop elke beweegbare brug steunt."</b> De zes letters die jullie verzamelden staan door elkaar: <b style="font-family:var(--mono);letter-spacing:.2em">${got.join(' ')}</b></p>
     <div class="lock"><input class="word" id="word" maxlength="6" placeholder="······" aria-label="Wachtwoord"><button class="btn" id="open">Open de brug</button></div>
     <div id="out" aria-live="polite"></div>
-    <details class="hint" data-straf><summary>Hint (−2 min)</summary><p>Ballastkist, contragewicht, sluitend moment: het gaat altijd om …</p></details>
+    ${hintHTML('finale','Hint (−2 min)','Ballastkist, contragewicht, sluitend moment: het gaat altijd om …')}
     ${figBox('Langsdoorsnede','',elevation())}
   </section>`;
-  app.querySelector('details[data-straf]').addEventListener('toggle',e=>{const d=e.target;if(d.open&&!d.dataset.used){d.dataset.used='1';S.hints++;penalty(HINT_STRAF);}});
+  koppelHints();
   window.scrollTo(0,0);
   const w=document.getElementById('word');w.focus({preventScroll:true});
   const go=()=>{if(S.ended)return;
     const v=w.value.trim().toUpperCase();
     if(!v){document.getElementById('out').innerHTML=`<div class="msg info"><b>Nog niet volledig</b>Typ eerst een wachtwoord van zes letters.</div>`;return;}
     if(v===FINAL_WORD){win();}
-    else{S.fouten++;penalty(FOUT_STRAF);document.getElementById('out').innerHTML=`<div class="msg no"><b>Toegang geweigerd, −1 minuut</b>Herschik de zes letters.</div>`;}};
+    else{S.fouten++;geluid.fout();penalty(FOUT_STRAF);document.getElementById('out').innerHTML=`<div class="msg no"><b>Toegang geweigerd, −1 minuut</b>Herschik de zes letters.</div>`;}};
   document.getElementById('open').addEventListener('click',go);w.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
 }
 
@@ -722,7 +866,8 @@ function animateOpen(el){
 }
 
 function win(){
-  S.ended='win';clearInterval(tick);hud();scherm=win;
+  S.ended='win';clearInterval(tick);hud();scherm=win;wis();
+  if(!S.eindGeluid){S.eindGeluid=true;geluid.open();setTimeout(()=>geluid.hoorn(0.5),1400);}
   const t=used();
   app.innerHTML=`<section class="panel stack">
     <div class="eyebrow">Brugwachtershuis · ${klok(START_KLOK+t)}</div>
@@ -743,7 +888,8 @@ function win(){
 }
 
 function gameOver(){
-  S.ended='lose';clearInterval(tick);hud();scherm=gameOver;
+  S.ended='lose';clearInterval(tick);hud();scherm=gameOver;wis();
+  if(!S.eindGeluid){S.eindGeluid=true;geluid.hoorn(1);setTimeout(()=>geluid.fout(),2600);}
   const n=Object.keys(S.solved).length;
   app.innerHTML=`<section class="panel stack shake" id="go-panel">
     <div class="eyebrow" style="color:var(--bad)">${klok(START_KLOK+TOTAL)} · aanvaring</div>

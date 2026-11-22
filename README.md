@@ -24,12 +24,16 @@ Het hele spel zit in **één bestand: `index.html`**. Elke wijziging op de `main
 |---|---|
 | Groepsnummer en namen | `GROEP` bovenaan |
 | Speeltijd, straf per hint of fout | `TOTAL`, `HINT_STRAF`, `FOUT_STRAF` |
-| Namen van de ruimtes, cursusverwijzingen, letters | `ROOMS` |
+| Namen van de ruimtes en cursusverwijzingen | `ROOMS` |
+| Wachtwoord van de finale (letters worden per spel willekeurig verdeeld) | `FINAL_WORD` |
+| Radioberichten tijdens het spel en wanneer ze komen | `RADIO` |
 | Puzzeltekst, cursustip, hints, uitleg, controle van het antwoord | `PUZ` (één blok per ruimte) |
 | Gegevens van de brug op het startscherm | `BRUG` |
 | Tekeningen | functies `elevation`, `ballastSVG`, `jackSVG`, `bearingSVG`, `laneSVG`, `jointSVG` |
 
 Tip: met **Spelleidermodus** op het startscherm loopt er geen klok en zijn alle ruimtes open. Handig om te testen en voor de pitch.
+
+De voortgang wordt in de browser bewaard: wie de pagina vernieuwt, kan op het startscherm met **Ga verder** verder spelen (de klok loopt intussen door). Met **Opnieuw beginnen** wis je het bewaarde spel.
 
 ## Nog te doen
 
@@ -43,6 +47,7 @@ Tip: met **Spelleidermodus** op het startscherm loopt er geen klok en zijn alle 
 
 - **v10:** eerste speelbare versie (30 minuten).
 - **v11:** feedback van de speltest en controle met de cursus verwerkt: cursustermen (geen "val" meer), 45 minuten, gratis cursustip per ruimte, afrondingsfout in ruimte 6, verantwoording van de vaste oplegging, tekenfouten, uitleg na afloop, vergrootbare tekeningen en een radar met het naderende schip. De volledige lijst staat in de beschrijving van de v11-commit.
+- **v12:** voortgang bewaren en hervatten, radioberichten van het schip en geluid (met dempknop), letters van de finale per spel in willekeurige volgorde, en een interactieve ballastkist in ruimte 2: blokken bijleggen en de balans testen, waarbij het brugdek zichtbaar reageert.
 
 ## Gebruik van AI
 
