@@ -135,6 +135,81 @@ ul.plain li{margin:5px 0;max-width:76ch}
   .disp.snd{flex:0 0 auto;min-width:0;padding:3px 8px}.disp.snd small{display:none}
   .toast{top:auto;bottom:16px;left:16px;right:16px;max-width:none}
 }
+
+/* ===== v13: vlottere indeling en controlekamerstijl ===== */
+body{background:
+  radial-gradient(1200px 600px at 70% -10%,rgba(38,74,104,.45),transparent 70%),
+  linear-gradient(rgba(127,176,255,.035) 1px,transparent 1px) 0 0/28px 28px,
+  linear-gradient(90deg,rgba(127,176,255,.035) 1px,transparent 1px) 0 0/28px 28px,
+  var(--bg);background-attachment:fixed}
+header{background:rgba(15,27,38,.93);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.panel{background:linear-gradient(180deg,#1b2e40 0,#162534 140px);border-color:#2b4157;border-top-color:#3a5570;border-radius:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 14px 34px rgba(0,0,0,.3)}
+.disp{box-shadow:inset 0 0 14px rgba(0,0,0,.6);text-shadow:0 0 10px rgba(242,163,58,.35)}
+.disp.warn{text-shadow:0 0 10px rgba(239,107,91,.55)}
+.letters span{box-shadow:inset 0 0 10px rgba(0,0,0,.6)}
+.letters span.vol{border-color:#2f6b4c;text-shadow:0 0 10px rgba(76,195,138,.6)}
+.letters span.pop{animation:pop .7s ease-out}
+@keyframes pop{0%{transform:scale(.4);background:#1f4a35}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.toast{top:calc(var(--kop,84px) + 10px)}
+/* knoppen met een fysiek gevoel */
+.btn{background:linear-gradient(180deg,#f8b858,#e8952a);box-shadow:0 2px 0 #9c5f17,0 8px 18px rgba(242,163,58,.16);transition:transform .08s,box-shadow .08s,filter .15s}
+.btn:hover{filter:brightness(1.07)}
+.btn:active{transform:translateY(2px);box-shadow:0 0 0 #9c5f17}
+.btn.ghost{background:rgba(255,255,255,.02);box-shadow:none}
+.btn.ghost:hover{border-color:#4a6580;background:rgba(255,255,255,.05);filter:none}
+.btn.klein{padding:6px 10px;font-size:14px}
+.btn.groot{padding:14px 22px;font-size:18px}
+/* routebalk met statuslampjes: rood = storing, oranje = hier, groen = verholpen */
+.stop{position:relative;padding-left:30px;transition:border-color .2s,background .2s}
+.stop:not(:disabled):hover{background:#13263a}
+.stop::before{content:"";position:absolute;left:11px;top:15px;width:10px;height:10px;border-radius:50%;background:var(--bad);box-shadow:0 0 8px rgba(239,107,91,.8)}
+.stop.done::before{background:var(--good);box-shadow:0 0 8px rgba(76,195,138,.8)}
+.stop.now{background:#1d2c3b}
+.stop.now::before{background:var(--amber);box-shadow:0 0 10px rgba(242,163,58,.9);animation:knipper 1.4s ease-in-out infinite}
+.stop.now.done::before{background:var(--good);box-shadow:0 0 10px rgba(76,195,138,.9);animation:none}
+.stop:disabled::before{background:#6b2c26;box-shadow:none}
+@keyframes knipper{50%{opacity:.35}}
+@media (max-width:760px){.stop{padding-left:22px}.stop::before{left:8px;top:12px;width:8px;height:8px}}
+/* ruimte: de tekening links blijft in beeld terwijl je rechts leest en antwoordt */
+.game{grid-template-columns:minmax(0,1.3fr) minmax(340px,1fr)}
+.scene{padding:12px;display:flex;flex-direction:column;gap:12px}
+.scene.kleeft{position:sticky;top:calc(var(--kop,84px) + 12px)}
+.bediening{border-top:1px solid var(--line);padding-top:12px}
+.opl-grid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 12px;align-items:center}
+.opl-grid label{font-family:var(--mono);font-size:14px;color:var(--amber);white-space:nowrap}
+.scene-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.scene-bar .btn{margin-left:auto}
+.lamp{width:12px;height:12px;border-radius:50%;flex:none;background:var(--bad);box-shadow:0 0 10px rgba(239,107,91,.9);animation:knipper 1.2s ease-in-out infinite}
+.lamp.ok{background:var(--good);box-shadow:0 0 10px rgba(76,195,138,.9);animation:none}
+.console{gap:12px}
+.console>p{font-size:16px}
+.console details.theory p{font-size:15px}
+@media (max-width:960px){.game{grid-template-columns:1fr}.scene{position:static}.console{order:-1}}
+/* gegevens als compact raster in twee kolommen */
+.data{border:1px solid var(--line);border-radius:8px;background:#122030;padding:10px 12px}
+.data-kop{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.data dl{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px}
+.data dl>div{display:flex;flex-direction:column;justify-content:space-between;border-bottom:1px dashed #23364a;padding-bottom:4px;min-width:0}
+.data dt{font-size:13px;color:var(--muted);line-height:1.3}
+.data dd{margin:0;font-family:var(--mono);font-size:15px;font-weight:600;color:var(--ink)}
+.hero .data dl{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:900px){.hero .data dl{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:359px){.data dl,.hero .data dl{grid-template-columns:1fr}}
+/* vlotte overgang tussen schermen en een tik bij een fout antwoord */
+#app>*{animation:inkomen .3s ease-out}
+@keyframes inkomen{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.wiebel{animation:shake .4s 1}
+/* beloningskaart bij een opgeloste ruimte */
+.solved-card{background:linear-gradient(180deg,#183327,#142534 60%);border:1px solid #2f6b4c;border-radius:14px;padding:22px;max-width:620px;width:100%;max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:kaartIn .35s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes kaartIn{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:none}}
+.sv-top{display:flex;gap:16px;align-items:center}
+.big-letter{width:72px;height:84px;flex:none;display:grid;place-items:center;font-family:var(--mono);font-weight:600;font-size:46px;color:var(--good);background:#0a131b;border:1px solid #2f6b4c;border-radius:10px;text-shadow:0 0 18px rgba(76,195,138,.7);animation:pop .8s ease-out}
+/* startscherm */
+.hero h1{font-size:clamp(34px,5vw,56px)}
+.regels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.regels div{background:#122030;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:14px;line-height:1.35}
+.regels b{display:block;font-family:var(--mono);font-size:13px;color:var(--amber)}
+@media (prefers-reduced-motion:reduce){#app>*,.solved-card,.big-letter,.letters span.pop,.stop.now::before,.lamp{animation:none!important}}
 footer{font-size:13px;color:var(--muted)}
 .hidden{display:none!important}
 .shake{animation:shake .5s 3}
@@ -162,7 +237,7 @@ footer{font-size:13px;color:var(--muted)}
 /* =====================================================================
    INSTELLINGEN — hier pas je het spel aan
    ===================================================================== */
-const VERSIE='v12';
+const VERSIE='v13';
 const GROEP={nr:'XX',leden:[]};      // TODO groep: vul het groepsnummer en de namen in, bv. {nr:'07',leden:['Naam 1','Naam 2','Naam 3','Naam 4']}
 const TOTAL=45*60;                     // speeltijd in seconden (v10: 30 min, na speltest verhoogd)
 const START_KLOK=5*3600+58*60;         // verhaalklok bij de start: 05:58
@@ -267,7 +342,8 @@ function hud(){
   const l=left();const c=document.getElementById('clock');
   c.innerHTML=`<small>${S.gm?'SPELLEIDER':'TIJD'}</small>${S.gm?'—':fmt(Math.max(0,l))}`;c.classList.toggle('warn',!S.gm&&S.running&&l<300);
   document.getElementById('pen').innerHTML=`<small>STRAF</small>+${fmt(S.penalty)}`;
-  document.getElementById('letters').innerHTML=ROOMS.map(r=>`<span>${S.solved[r.id]?letterVan(r.id):''}</span>`).join('');
+  const lh=ROOMS.map(r=>`<span class="${S.solved[r.id]?'vol':''}${r.id===S.nieuw?' pop':''}">${S.solved[r.id]?letterVan(r.id):''}</span>`).join('');
+  const le=document.getElementById('letters');if(le.dataset.h!==lh){le.innerHTML=lh;le.dataset.h=lh;}   /* enkel hertekenen bij een nieuwe letter */
   radar();
   if(S.running&&!S.gm&&!S.ended){if(l<=0)gameOver();else radioCheck(l);}
 }
@@ -375,9 +451,9 @@ function radar(){
 /* ------- detailtekeningen per ruimte ------- */
 function axesSVG(){
   const mk=`<marker id="ax-arr" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#c9d4dd"/></marker><marker id="ax-arr-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#7fb0ff"/></marker>`;
-  return `<svg viewBox="0 0 600 376" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Assenstelsel van een brug, met het verschil tussen rotatie en translatie">
+  return `<svg viewBox="-90 0 780 376" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Assenstelsel van een brug, met het verschil tussen rotatie en translatie">
   <defs>${mk}</defs>
-  <rect width="600" height="376" fill="#0d1822"/>
+  <rect x="-90" width="780" height="376" fill="#0d1822"/>
   <polygon points="90,200 400,200 520,140 210,140" fill="#55687a" stroke="#9fb3c6" stroke-width="2"/>
   <line x1="150" y1="170" x2="470" y2="170" stroke="#f2a33a" stroke-width="3"/><polygon points="470,163 486,170 470,177" fill="#f2a33a"/>
   <text x="494" y="175" ${MONO} font-size="16" fill="#f2a33a">x · brugas</text>
@@ -634,7 +710,7 @@ const PUZ={
   tekst:'Voor het beweegbare brugdek open mag, moet de vaste overspanning aan de noordkant veilig staan. Bij onderhoud werden de geleidingen van drie oplegtoestellen verwijderd. Oplegging A is volledig vast. Kies voor B, C en D welke beweging ze moeten verhinderen.',
   fig:()=>bearingSVG(!!S.solved[4]),
   dossier:[['A (pijler, west)','volledig vast'],['Overspanning','40 m, stalen dek'],['Doel','vrij uitzetten zonder parasitaire krachten, maar plaatsvast']],
-  form:()=>`${['B','C','D'].map(k=>`<label for="b-${k}" class="small">Oplegging ${k}</label><select id="b-${k}"><option value="">kies…</option><option value="vast">volledig vast</option><option value="langsvast">enkel vast in langse richting (beweegt dwars, y)</option><option value="dwarsvast">enkel vast in dwarse richting (beweegt langs, x)</option><option value="los">los (beweegt in alle richtingen)</option></select>`).join('')}
+  form:()=>`<div class="opl-grid">${['B','C','D'].map(k=>`<label for="b-${k}">Oplegging ${k}</label><select id="b-${k}"><option value="">kies…</option><option value="vast">volledig vast</option><option value="langsvast">enkel vast in langse richting (beweegt dwars, y)</option><option value="dwarsvast">enkel vast in dwarse richting (beweegt langs, x)</option><option value="los">los (beweegt in alle richtingen)</option></select>`).join('')}</div>
     <button class="btn" id="try">Zet de opleggingen vast</button>`,
   check(){const b=document.getElementById('b-B').value,c=document.getElementById('b-C').value,d=document.getElementById('b-D').value;
     if(!b||!c||!d)return {leeg:true,t:'Kies eerst voor elke oplegging een type.'};
@@ -704,26 +780,29 @@ function intro(){
   if(lopend){const n=Object.keys(d.solved||{}).length,rest=TOTAL-((Date.now()-d.start)/1000+(d.penalty||0));
     hervatTekst=`<div class="resume"><div><b>Er loopt nog een spel.</b> ${n} van de 6 ruimtes opgelost${d.gm?' (spelleidermodus)':rest>0?`, nog ${fmt(rest)} op de klok`:', maar de tijd is intussen op'}.</div>
       <div class="row"><button class="btn" id="resume">Ga verder</button><button class="btn ghost" id="fresh">Opnieuw beginnen</button></div></div>`;}
-  app.innerHTML=`<section class="panel stack">${hervatTekst}
+  app.innerHTML=`<section class="panel stack hero">${hervatTekst}
     <div class="two">
       <div class="stack">
         <div class="eyebrow">Maandag · ${klok(START_KLOK)} · Vaartdok, haven van Gent</div>
         <h1>Een zeeschip wacht. De brug gaat niet open.</h1>
         <p>Na een stroompanne staat de Vaartdokbrug in storing en de brugwachter is onbereikbaar. Jullie zijn het ingenieursteam van wacht. Werk je van zuid naar noord door de brug, los in elke ruimte de storing op en open de brug voor het schip ertegen vaart.</p>
         <div class="radio">📻 Havenkapiteinsdienst: "Vaartdokbrug, de MV Schelde Trader vaart nu het dok in. Ze kan niet meer stoppen. U heeft ${minuten(TOTAL/60)} minuten. Over."</div>
-        <div class="row"><button class="btn" id="go">Start de klok (${TOTAL/60} minuten)</button>
+        <div class="row"><button class="btn groot" id="go">▶ Start de klok (${TOTAL/60} minuten)</button>
           <label class="chk"><input type="checkbox" id="gm"> Spelleidermodus (geen klok, alle ruimtes open)</label></div>
         <div class="row hidden" id="demo"><button class="btn ghost" id="demo-lose">Voorbeeld: game over</button><button class="btn ghost" id="demo-win">Voorbeeld: gewonnen</button></div>
-        <p class="small muted">In elke ruimte staat een stukje cursus dat je gratis mag lezen. Een extra hint kost 2 minuten, een fout antwoord 1 minuut. Elke opgeloste ruimte geeft een letter; samen vormen ze het wachtwoord om de brug te openen. Klik op een tekening om ze te vergroten. Zet het geluid aan voor de radioberichten van het schip. Jullie voortgang wordt in deze browser bewaard.</p>
-        <p class="small"><a href="#over" data-about>Over dit spel: leerdoelen en bronnen →</a></p>
       </div>
       <div class="stack">
-        <h3>De brug in cijfers</h3>
-        <table class="dossier"><tbody>${BRUG.map(r=>`<tr><td>${r[0]}</td><td class="n">${r[1]}</td></tr>`).join('')}</tbody></table>
+        ${figBox('Langsdoorsnede · zuid → noord','',elevation())}
+        <div class="regels">
+          <div><b>📘 Cursustip</b>In elke ruimte gratis</div>
+          <div><b>💡 Extra hint</b>Kost 2 minuten</div>
+          <div><b>✗ Fout antwoord</b>Kost 1 minuut</div>
+          <div><b>🔤 Letters</b>Elke ruimte geeft een letter van het wachtwoord</div>
+        </div>
+        <p class="small muted">Klik op een tekening om ze te vergroten. Zet het geluid aan voor de radioberichten van het schip. Jullie voortgang wordt in deze browser bewaard. <a href="#over" data-about>Over dit spel</a></p>
       </div>
     </div>
-    ${figBox('Langsdoorsnede Vaartdokbrug (fictief) · zuid ← → noord','route 1 → 6',elevation())}
-    ${figBox('Grondplan (bovenaanzicht) · het schip vaart van onder naar boven','',planSVG({shipY:235}))}
+    <div class="data"><div class="data-kop">De brug in cijfers</div><dl>${BRUG.map(r=>`<div><dt>${r[0]}</dt><dd>${r[1]}</dd></div>`).join('')}</dl></div>
   </section>`;
   const gm=document.getElementById('gm');
   gm.addEventListener('change',()=>document.getElementById('demo').classList.toggle('hidden',!gm.checked));
@@ -778,22 +857,24 @@ function room(id){
   const P=PUZ[id],R=ROOMS[id-1],done=!!S.solved[id];
   app.innerHTML=`<div class="stack">${routeBar()}
   <div class="game">
-    <section class="panel stack" style="padding:12px">
-      ${figBox(`Je bent hier · ruimte ${id}`,esc(R.plaats),elevation({hl:id}),'here')}
+    <section class="panel scene" aria-label="Werkbank">
       ${figBox(`Ruimte ${id} · ${esc(R.naam)}`,`cursus: ${esc(R.hfst)}`,P.fig(),'roomfig')}
+      <div class="scene-bar"><span class="lamp ${done?'ok':'alarm'}" aria-hidden="true"></span><span class="small muted">${done?'Storing verholpen':'Storing actief'} · ${esc(R.plaats)}</span><button class="btn ghost klein" type="button" id="kaart">🗺 Kaart van de brug</button></div>
+      <div class="stack bediening ${done?'hidden':''}" id="form">${P.form()}</div>
+      <div id="out" aria-live="polite"></div>
+      <div class="row" id="nav"></div>
     </section>
-    <section class="panel stack">
+    <section class="panel stack console">
       <div class="eyebrow">Ruimte ${id} van 6 · ${esc(R.naam)}</div>
       <h2>${esc(P.titel)}</h2>
       <p>${esc(P.tekst)}</p>
       <details class="hint theory" open><summary>📘 Uit de cursus (gratis)</summary><p>${esc(P.cursus)}</p></details>
-      ${P.dossier?`<table class="dossier"><thead><tr><th>Uit het dossier</th><th style="text-align:right">Waarde</th></tr></thead><tbody>${P.dossier.map(d=>`<tr><td>${d[0]}</td><td class="n">${d[1]}</td></tr>`).join('')}</tbody></table>`:''}
-      <div class="stack ${done?'hidden':''}" id="form">${P.form()}</div>
-      <div id="out" aria-live="polite"></div>
+      ${P.dossier?`<div class="data"><div class="data-kop">Uit het dossier</div><dl>${P.dossier.map(d=>`<div><dt>${d[0]}</dt><dd>${d[1]}</dd></div>`).join('')}</dl></div>`:''}
       <div class="stack ${done?'hidden':''}" id="hints">${P.hints.map((h,i)=>hintHTML(`${id}-${i}`,`Hint ${i+1} (−2 min)`,h)).join('')}</div>
-      <div class="row" id="nav"></div>
     </section></div></div>`;
+  kleefCheck();
   app.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>room(+b.dataset.go)));
+  document.getElementById('kaart').addEventListener('click',e=>{e.stopPropagation();toonKaart(id);});
   koppelHints();
   const tr=document.getElementById('try');
   if(tr){tr.addEventListener('click',()=>attempt(id));app.querySelectorAll('#form input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')attempt(id);}));}
@@ -807,22 +888,55 @@ function room(id){
 function hintHTML(sleutel,titel,tekst){const u=S.hintsUsed[sleutel];return `<details class="hint" data-straf="${sleutel}"${u?' open data-used="1"':''}><summary>${titel}</summary><p>${esc(tekst)}</p></details>`;}
 function koppelHints(){app.querySelectorAll('details[data-straf]').forEach(d=>d.addEventListener('toggle',()=>{if(d.open&&!d.dataset.used){d.dataset.used='1';S.hintsUsed[d.dataset.straf]=true;S.hints++;penalty(HINT_STRAF);}}));}
 
+/* De werkbank blijft enkel vast in beeld staan als ze volledig op het scherm past */
+function kleefCheck(){const s=document.querySelector('.scene');if(!s)return;const kop=document.querySelector('header').offsetHeight;s.classList.toggle('kleeft',window.innerWidth>960&&s.offsetHeight<window.innerHeight-kop-24);}
+window.addEventListener('resize',kleefCheck);
+/* Kaart van de hele brug, met de huidige ruimte gemarkeerd, in het vergrootvenster */
+function toonKaart(id){
+  const tmp=document.createElement('div');
+  tmp.innerHTML=figBox(`Kaart · je bent in ruimte ${id}: ${esc(ROOMS[id-1].naam)}`,'',elevation({hl:id}));
+  openZoom(tmp.firstElementChild);
+}
+
 function attempt(id){
   if(S.ended)return;
   const P=PUZ[id],r=P.check();
   const out=document.getElementById('out');
   if(r.leeg||r.zacht){out.innerHTML=`<div class="msg info"><b>${r.leeg?'Nog niet volledig':'Let op'}</b>${esc(r.t)}</div>`;return;}
   if(P.na)P.na(r);
-  if(r.ok){S.solved[id]=true;geluid.goed();bewaar();hud();showSolved(id);return;}
+  if(r.ok){S.solved[id]=true;S.nieuw=id;geluid.goed();bewaar();hud();showSolved(id);setTimeout(()=>toonOpgelost(id),P.na?1000:450);return;}
   S.fouten++;geluid.fout();penalty(FOUT_STRAF);
   out.innerHTML=`<div class="msg no"><b>Fout, −1 minuut</b>${esc(r.t)}</div>`;
+  const f=document.getElementById('form');f.classList.remove('wiebel');void f.offsetWidth;f.classList.add('wiebel');
+  kleefCheck();
+}
+/* Beloningsmoment: kaart met de gewonnen letter en de uitleg, Enter gaat meteen verder */
+function toonOpgelost(id){
+  if(S.ended||S.current!==id||document.querySelector('.solved-ov'))return;
+  const n=nextRoom(),verder=n<=6?`Verder naar ruimte ${n}: ${esc(ROOMS[n-1].naam)} →`:'Terug naar het brugwachtershuis →';
+  const o=document.createElement('div');o.className='zoom solved-ov';
+  o.innerHTML=`<div class="solved-card" role="dialog" aria-modal="true" aria-labelledby="sv-t">
+    <div class="eyebrow" style="color:var(--good)">Storing verholpen · ruimte ${id} van 6</div>
+    <div class="sv-top"><div class="big-letter" aria-label="Letter ${letterVan(id)}">${letterVan(id)}</div>
+      <div><h2 id="sv-t">${esc(ROOMS[id-1].naam)}</h2><p class="small muted">Nieuwe letter voor het wachtwoord. ${Object.keys(S.solved).length} van de 6 storingen opgelost.</p></div></div>
+    <p>${esc(PUZ[id].uitleg)}</p>
+    <div class="row"><button class="btn" data-next>${verder}</button><button class="btn ghost" data-stay>Blijf in deze ruimte</button></div>
+  </div>`;
+  document.body.appendChild(o);
+  const sluit=()=>{o.remove();document.removeEventListener('keydown',onKey);};
+  const onKey=e=>{if(e.key==='Escape')sluit();};
+  o.querySelector('[data-next]').addEventListener('click',()=>{sluit();n<=6?room(n):finale();});
+  o.querySelector('[data-stay]').addEventListener('click',sluit);
+  document.addEventListener('keydown',onKey);
+  o.querySelector('[data-next]').focus();
 }
 function showSolved(id){
   document.getElementById('form').classList.add('hidden');
   document.getElementById('hints').classList.add('hidden');
   document.getElementById('out').innerHTML=`<div class="msg ok"><b>Opgelost · letter: ${letterVan(id)}</b>${esc(PUZ[id].uitleg)}</div>`;
-  const h=document.querySelector('#here .fig-svg');if(h)h.innerHTML=elevation({hl:id});
   const rf=document.querySelector('#roomfig .fig-svg');if(rf)rf.innerHTML=PUZ[id].fig();
+  const lamp=document.querySelector('.scene-bar .lamp');if(lamp){lamp.className='lamp ok';lamp.nextElementSibling.textContent=`Storing verholpen · ${ROOMS[id-1].plaats}`;}
+  setTimeout(kleefCheck,0);
   const n=nextRoom(),nav=document.getElementById('nav');
   nav.innerHTML=n<=6?`<button class="btn" id="nx">Verder naar ruimte ${n}: ${esc(ROOMS[n-1].naam)} →</button>`:`<button class="btn" id="nx">Terug naar het brugwachtershuis →</button>`;
   document.getElementById('nx').addEventListener('click',()=>n<=6?room(n):finale());
@@ -912,6 +1026,8 @@ function gameOver(){
 }
 
 document.getElementById('foot').innerHTML=`Fictieve brug met realistische, vereenvoudigde waarden · ${VERSIE} · <a href="#over" data-about>Over dit spel</a>`;
+/* Hoogte van de vaste kop doorgeven aan de CSS, zodat de tekening er net onder blijft staan */
+(()=>{const kop=document.querySelector('header');const zet=()=>document.documentElement.style.setProperty('--kop',kop.offsetHeight+'px');zet();if(window.ResizeObserver)new ResizeObserver(zet).observe(kop);else window.addEventListener('resize',zet);})();
 intro();hud();
 </script>
 </body>
