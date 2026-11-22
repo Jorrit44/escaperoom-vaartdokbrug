@@ -49,6 +49,7 @@ De voortgang wordt in de browser bewaard: wie de pagina vernieuwt, kan op het st
 - **v11:** feedback van de speltest en controle met de cursus verwerkt: cursustermen (geen "val" meer), 45 minuten, gratis cursustip per ruimte, afrondingsfout in ruimte 6, verantwoording van de vaste oplegging, tekenfouten, uitleg na afloop, vergrootbare tekeningen en een radar met het naderende schip. De volledige lijst staat in de beschrijving van de v11-commit.
 - **v12:** voortgang bewaren en hervatten, radioberichten van het schip en geluid (met dempknop), letters van de finale per spel in willekeurige volgorde, en een interactieve ballastkist in ruimte 2: blokken bijleggen en de balans testen, waarbij het brugdek zichtbaar reageert.
 - **v13:** vlottere indeling en controlekamerstijl: elke ruimte is een werkbank (tekening met de bediening eronder, rechts opdracht, cursus, gegevens en hints), een beloningsscherm met de nieuwe letter na elke opgeloste ruimte, statuslampjes in de routebalk, een kaartknop in plaats van de grote "Je bent hier"-tekening, gegevens in een compact raster, zachte overgangen en een titelscherm.
+- **v14:** ruimte 3, 4 en 6 interactief: vijzelkracht instellen met een schuifknop en een proefopening tegen de wind (het brugdek blijft steken of zwaait met een schok open), opleggingen aanklikken in de tekening en testen bij +54 °C (wat klemt kleurt rood, wat te vrij staat oranje), en een voegtest van −18 tot +54 °C met een meter die toont wat elk voegtype kan opnemen.
 
 ## Gebruik van AI
 
