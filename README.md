@@ -52,6 +52,7 @@ De voortgang wordt in de browser bewaard: wie de pagina vernieuwt, kan op het st
 - **v14:** ruimte 3, 4 en 6 interactief: vijzelkracht instellen met een schuifknop en een proefopening tegen de wind (het brugdek blijft steken of zwaait met een schok open), opleggingen aanklikken in de tekening en testen bij +54 °C (wat klemt kleurt rood, wat te vrij staat oranje), en een voegtest van −18 tot +54 °C met een meter die toont wat elk voegtype kan opnemen.
 - **v15:** ruimte 1 en 5 interactief: na het bevestigen toont elk vakje van tabel 18.1 een animatie van hoe het gekozen brugtype echt beweegt (met ✓ of ✗), en de remkracht wordt in twee delen ingevuld met een meter voor de grenzen van 180 en 800 kN en een vrachtwagen die op het dek remt.
 - **v16:** meer spelgevoel: de gegevens liggen verspreid in elke ruimte (voorwerpen bekijken vult het dossier en de tekening aan), sterren per ruimte met een rang, prestaties en een record per browser op het eindscherm, een rode pulserende rand en tikkende klok in de laatste minuten, en een finale met de openingsprocedure aan het bedieningspaneel en het schip dat door de geopende brug vaart.
+- **v17:** metapuzzel in de finale: na het wachtwoord volgt een systeemcontrole waarin je de uitkomsten van de ruimtes combineert (ballast in kN, kracht per vijzel, remkracht per vaste oplegging, uitzetting aan de voeg), met een lampje en gerichte feedback per veld en een gratis notitieboekje met de uitleg van alle ruimtes.
 
 ## Gebruik van AI
 

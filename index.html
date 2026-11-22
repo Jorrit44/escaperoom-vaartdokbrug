@@ -258,6 +258,17 @@ details summary .st{display:inline}
 .pknop:active{transform:translateY(3px);box-shadow:0 1px 0 #0c1620}
 .pknop .pi{font-size:28px}
 .plamp{width:14px;height:14px;border-radius:50%;background:#3a1f1c;box-shadow:inset 0 0 4px rgba(0,0,0,.6)}
+/* systeemcontrole (metapuzzel in de finale) */
+.meta{display:flex;flex-direction:column;gap:8px}
+.meta-rij{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 12px;align-items:center;background:#0a131b;border:1px solid var(--line);border-radius:10px;padding:10px 12px;transition:border-color .2s}
+.meta-rij label{font-weight:600;line-height:1.3}
+.meta-rij label small{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.meta-rij .lock input{width:120px;font-size:22px}
+.meta-msg{grid-column:2 / -1;font-size:13px;min-height:0}
+.meta-msg:empty{display:none}
+.meta-rij.ok{border-color:#2f6b4c}.meta-rij.ok .plamp{background:var(--good);box-shadow:0 0 12px rgba(76,195,138,.9)}.meta-rij.ok .meta-msg{color:var(--good)}
+.meta-rij.fout{border-color:var(--bad)}.meta-rij.fout .plamp{background:var(--bad);box-shadow:0 0 10px rgba(239,107,91,.8)}.meta-rij.fout .meta-msg{color:#f3a79c}
+@media (max-width:560px){.meta-rij{grid-template-columns:auto minmax(0,1fr)}.meta-rij .lock{grid-column:2}.meta-msg{grid-column:1 / -1}}
 .pknop.aan{border-color:#2f6b4c}
 .pknop.aan .plamp{background:var(--good);box-shadow:0 0 12px rgba(76,195,138,.9)}
 @media (max-width:520px){.voorwerpen,.paneel{grid-template-columns:1fr}.voorwerp{flex-direction:row;justify-content:flex-start;text-align:left;padding:8px 10px}.pknop{flex-direction:row;justify-content:flex-start}}
@@ -292,7 +303,7 @@ footer{font-size:13px;color:var(--muted)}
 /* =====================================================================
    INSTELLINGEN — hier pas je het spel aan
    ===================================================================== */
-const VERSIE='v16';
+const VERSIE='v17';
 const GROEP={nr:'XX',leden:[]};      // TODO groep: vul het groepsnummer en de namen in, bv. {nr:'07',leden:['Naam 1','Naam 2','Naam 3','Naam 4']}
 const TOTAL=45*60;                     // speeltijd in seconden (v10: 30 min, na speltest verhoogd)
 const START_KLOK=5*3600+58*60;         // verhaalklok bij de start: 05:58
@@ -342,6 +353,7 @@ const S={start:null,penalty:0,running:false,solved:{},hints:0,fouten:0,current:1
   r3T:0,r3view:'jack',r3ang:0,r3msg:null,          /* ruimte 3: vijzelkracht en proefopening */
   r4:{B:'',C:'',D:''},r4uitz:0,r4res:null,          /* ruimte 4: gekozen opleggingen en temperatuurtest */
   gevonden:{},foutenPer:{},                          /* doorzochte voorwerpen en fouten per ruimte (voor de sterren) */
+  meta:{},                                           /* juist ingevulde velden van de systeemcontrole in de finale */
   r5:{a:'',b:''},r5x:null,r5rem:0,r5som:null,r5ok:false, /* ruimte 5: twee delen van de formule en de remmende vrachtwagen */
   r6:{mm:'',type:''},r6m:null,r6T:null,r6res:null}; /* ruimte 6: invoer, beweging en temperatuur tijdens de test */
 /* Letters van BALANS in willekeurige volgorde over de ruimtes, nooit al in de juiste volgorde */
@@ -350,7 +362,7 @@ S.letters=schud();
 const letterVan=id=>S.letters[id-1];
 
 /* Voortgang bewaren in de browser, zodat vernieuwen de pagina het spel niet wist */
-const BEWAAR=['start','penalty','running','solved','hints','fouten','current','ended','gm','letters','hintsUsed','radio','scherm','r2n','r2test','r3T','r4','r5','r6','gevonden','foutenPer'];
+const BEWAAR=['start','penalty','running','solved','hints','fouten','current','ended','gm','letters','hintsUsed','radio','scherm','r2n','r2test','r3T','r4','r5','r6','gevonden','foutenPer','meta'];
 function bewaar(){try{const d={};BEWAAR.forEach(k=>d[k]=S[k]);localStorage.setItem(OPSLAG,JSON.stringify(d));}catch(e){}}
 function laad(){try{const d=JSON.parse(localStorage.getItem(OPSLAG)||'null');return d&&Array.isArray(d.letters)?d:null;}catch(e){return null;}}
 function wis(){try{localStorage.removeItem(OPSLAG);}catch(e){}}
@@ -1101,7 +1113,7 @@ function about(){
     <p>Wie het spel uitspeelt, past zes onderdelen van de cursus toe op één fictieve, realistische brug: een basculebrug met kelder, gevolgd door een vaste stalen overspanning.</p>
     <ul class="plain">${ROOMS.map(r=>`<li><b>Ruimte ${r.id} · ${esc(r.naam)}:</b> ${esc(PUZ[r.id].kern)} <span class="muted">(${esc(r.hfst)})</span></li>`).join('')}</ul>
     <h3>Spelregels</h3>
-    <p>Jullie hebben ${TOTAL/60} minuten. In elke ruimte staat gratis het stuk cursus dat je nodig hebt. Een extra hint kost 2 minuten, een fout antwoord 1 minuut; een leeg antwoord kost niets. De gegevens die je nodig hebt, vind je door de voorwerpen in elke ruimte te bekijken. Elke ruimte levert tot drie sterren op (zonder hints en fouten); na het wachtwoord volgt nog de openingsprocedure aan het bedieningspaneel. Na afloop, gewonnen of verloren, toont het spel de uitleg van alle ruimtes. In spelleidermodus loopt er geen klok en zijn alle ruimtes open, handig om het spel te tonen of na te kijken.</p>
+    <p>Jullie hebben ${TOTAL/60} minuten. In elke ruimte staat gratis het stuk cursus dat je nodig hebt. Een extra hint kost 2 minuten, een fout antwoord 1 minuut; een leeg antwoord kost niets. De gegevens die je nodig hebt, vind je door de voorwerpen in elke ruimte te bekijken. Elke ruimte levert tot drie sterren op (zonder hints en fouten); na het wachtwoord volgt een systeemcontrole, waarin je de uitkomsten van de ruimtes moet combineren, en de openingsprocedure aan het bedieningspaneel. Na afloop, gewonnen of verloren, toont het spel de uitleg van alle ruimtes. In spelleidermodus loopt er geen klok en zijn alle ruimtes open, handig om het spel te tonen of na te kijken.</p>
     <h3>Bronnen</h3>
     <ul class="plain"><li>Cursus Bruggenbouw 2026-2027, Prof. dr. ir. W. De Corte: hoofdstukken III (ontwerpbelastingen), XVIII (beweegbare bruggen), XXIV (brugopleggingen) en XXV (brugdekvoegen).</li><li>De Vaartdokbrug is fictief. De waarden zijn realistisch maar vereenvoudigd.</li></ul>
     <div class="row"><button class="btn" id="back">← Terug</button></div>
@@ -1268,12 +1280,61 @@ function finale(){
   const go=()=>{if(S.ended)return;
     const v=w.value.trim().toUpperCase();
     if(!v){document.getElementById('out').innerHTML=`<div class="msg info"><b>Nog niet volledig</b>Typ eerst een wachtwoord van zes letters.</div>`;return;}
-    if(v===FINAL_WORD){geluid.goed();procedure();}
+    if(v===FINAL_WORD){geluid.goed();systeemcontrole();}
     else{S.fouten++;geluid.fout();penalty(FOUT_STRAF);document.getElementById('out').innerHTML=`<div class="msg no"><b>Toegang geweigerd, −1 minuut</b>Herschik de zes letters.</div>`;}};
   document.getElementById('open').addEventListener('click',go);w.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
 }
 
-/* Finale: de openingsprocedure aan het bedieningspaneel, in de juiste volgorde (de klok loopt door) */
+/* Finale, stap 2: metapuzzel. Het paneel vraagt waarden die je krijgt door de uitkomsten van de ruimtes te combineren. */
+const META=[
+  {id:'ballast',kamer:2,label:'Ballast in de kist',eenheid:'kN',juist:v=>Math.abs(v-3900)<1,
+    fout:v=>Math.abs(v-78)<0.5?'Dat is het aantal blokken. Het paneel vraagt het gewicht van de ballast.':Math.abs(v-3932)<1?'Dat is het exacte evenwicht. In de kist liggen hele blokken.':'Hoeveel blokken liggen er in de kist, en hoeveel weegt één blok?'},
+  {id:'vijzel',kamer:3,label:'Kracht per vijzel',eenheid:'kN',juist:v=>Math.abs(v-250)<0.5,
+    fout:v=>Math.abs(v-500)<0.5?'Dat is de kracht van beide vijzels samen.':'Welke kracht stelden jullie in de machinekamer in?'},
+  {id:'oplegging',kamer:5,label:'Remkracht per vaste oplegging (A of B, gelijk verdeeld)',eenheid:'kN',juist:v=>Math.abs(v-234)<0.5,
+    fout:v=>Math.abs(v-468)<0.5?'Dat is de totale remkracht. Welke opleggingen houden de brug in de langsrichting vast?':'Combineer de remkracht uit ruimte 5 met het oplegschema uit ruimte 4.'},
+  {id:'voeg',kamer:6,label:'Uitzetting aan de voeg op een zomerdag (+54 °C)',eenheid:'mm',juist:v=>v>=21&&v<=21.2,
+    fout:v=>(v>=34&&v<=35)?'Dat is de totale beweging, warm én koud samen. Het paneel vraagt enkel het uitzetten.':Math.round(v)===13?'Dat is het krimpen op een winternacht.':'ΔL+ = α · L · (54 − 10).'}
+];
+function systeemcontrole(){
+  if(S.ended)return;
+  scherm=finale;S.meta=S.meta||{};bewaar();
+  const notities=ROOMS.filter(r=>S.solved[r.id]).map(r=>`<li><b>Ruimte ${r.id} · ${esc(r.naam)}:</b> ${esc(PUZ[r.id].uitleg)}</li>`).join('');
+  app.innerHTML=`<section class="panel stack">
+    <div class="eyebrow">Brugwachtershuis · systeemcontrole</div>
+    <h2>Klopt de hele brug samen?</h2>
+    <p>Het wachtwoord klopt. Voor de brug open mag, controleert het systeem of alle onderdelen samen kloppen. Combineer wat jullie in de ruimtes ontdekten: niet alles staat letterlijk in je notities. Een controle met een fout kost 1 minuut.</p>
+    <div class="meta">${META.map(m=>{const ok=S.meta[m.id];return `<div class="meta-rij${ok?' ok':''}" id="mr-${m.id}"><span class="plamp" aria-hidden="true"></span>
+      <label for="m-${m.id}"><small>Ruimte ${m.kamer} · ${esc(ROOMS[m.kamer-1].naam)}</small>${esc(m.label)}</label>
+      <div class="lock"><input id="m-${m.id}" inputmode="decimal" maxlength="7" placeholder="${m.eenheid}"${ok?' disabled value="✓"':''} aria-label="${esc(m.label)} in ${m.eenheid}"><span class="eenheid">${m.eenheid}</span></div>
+      <div class="meta-msg" id="mm-${m.id}" aria-live="polite">${ok?'✓ klopt':''}</div></div>`;}).join('')}</div>
+    <button class="btn" id="check">Controleer het systeem</button>
+    <div id="out" aria-live="polite"></div>
+    <details class="hint theory"><summary>📒 Jullie notities uit de ruimtes (gratis)</summary><ul class="plain">${notities}</ul></details>
+    ${hintHTML('meta','Hint (−2 min)','Ballast: aantal blokken × 50 kN. Remkracht: A en B houden de brug samen in de langsrichting vast en delen de remkracht. Voeg: enkel het uitzetten, ΔL+ = α · L · (54 − 10).')}
+    ${figBox('Langsdoorsnede','',elevation())}
+  </section>`;
+  koppelHints();window.scrollTo(0,0);
+  const out=document.getElementById('out');
+  const controleer=()=>{
+    if(S.ended)return;
+    const open=META.filter(m=>!S.meta[m.id]);
+    if(open.some(m=>isNaN(num('m-'+m.id)))){out.innerHTML=`<div class="msg info"><b>Nog niet volledig</b>Vul eerst alle velden in.</div>`;return;}
+    let fouten=0;
+    open.forEach(m=>{const v=num('m-'+m.id),rij=document.getElementById('mr-'+m.id),msg=document.getElementById('mm-'+m.id);
+      if(m.juist(v)){S.meta[m.id]=true;rij.className='meta-rij ok';msg.textContent='✓ klopt';const i=document.getElementById('m-'+m.id);i.disabled=true;}
+      else{fouten++;rij.className='meta-rij fout';msg.textContent='✗ '+m.fout(v);}});
+    bewaar();
+    if(fouten){S.fouten++;geluid.fout();penalty(FOUT_STRAF);out.innerHTML=`<div class="msg no"><b>Systeemfout, −1 minuut</b>${fouten} ${fouten===1?'waarde klopt':'waarden kloppen'} nog niet.</div>`;}
+    else{geluid.goed();out.innerHTML=`<div class="msg ok"><b>Alle systemen in orde</b>Het bedieningspaneel wordt vrijgegeven.</div>`;setTimeout(procedure,1100);}
+  };
+  document.getElementById('check').addEventListener('click',controleer);
+  app.querySelectorAll('.meta input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')controleer();}));
+  if(META.every(m=>S.meta[m.id])){setTimeout(procedure,300);return;}
+  const eerste=app.querySelector('.meta input:not([disabled])');if(eerste)eerste.focus({preventScroll:true});
+}
+
+/* Finale, stap 3: de openingsprocedure aan het bedieningspaneel, in de juiste volgorde (de klok loopt door) */
 const PROC=[
   {id:'slag',t:'Slagbomen sluiten',i:'🚧',ok:'Verkeerslichten op rood, slagbomen dicht. Er rijdt niemand meer op de brug.'},
   {id:'vergr',t:'Vergrendeling losmaken',i:'🔓',ok:'De neus van het beweegbare brugdek is ontgrendeld.'},
