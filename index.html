@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Escape room Vaartdokbrug</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Controlekamer bij nacht: donker staalblauw, amberkleurige displays; groen = opgelost, rood = alarm */
+  --bg:#0f1b26;
+  --panel:#162534;
+  --ink:#e6edf2;
+  --muted:#93a4b3;
+  --line:#2a3d4f;
+  --amber:#f2a33a;
+  --good:#4cc38a;
+  --bad:#ef6b5b;
+  --display:"Archivo","Arial Narrow",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55}
+button,select,input{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto;padding:18px 16px 40px;display:flex;flex-direction:column;gap:16px}
+header{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center}
+@media (max-width:860px){header{grid-template-columns:1fr}}
+.brand{font-family:var(--display);font-weight:900;font-size:22px;letter-spacing:-.01em}
+.brand small{display:block;font-family:var(--mono);font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.08em}
+.hud{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+.disp{font-family:var(--mono);font-weight:600;font-size:20px;color:var(--amber);background:#0a131b;border:1px solid var(--line);border-radius:6px;padding:6px 12px;font-variant-numeric:tabular-nums;min-width:92px;text-align:center}
+.disp.warn{color:var(--bad)}
+.disp small{display:block;font-size:10px;color:var(--muted);letter-spacing:.08em;font-weight:500}
+.letters{display:flex;gap:4px;align-items:center}
+.letters span{width:30px;height:38px;display:grid;place-items:center;font-family:var(--mono);font-weight:600;font-size:20px;background:#0a131b;border:1px solid var(--line);border-radius:5px;color:var(--good)}
+.radar{background:#0a131b;border:1px solid var(--line);border-radius:6px;padding:4px;width:220px}
+.radar svg{display:block;width:100%;height:auto}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.15}
+h1{font-size:clamp(30px,5vw,50px);font-weight:900;letter-spacing:-.02em}
+h2{font-size:25px;font-weight:700}
+h3{font-size:18px;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.btn{background:var(--amber);color:#1b1205;border:0;border-radius:6px;padding:11px 18px;font-weight:600}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.stack{display:flex;flex-direction:column;gap:14px}
+.two{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:900px){.two{grid-template-columns:1fr}}
+.radio{font-family:var(--mono);font-size:15px;background:#0a131b;border-left:3px solid var(--amber);padding:12px 14px;border-radius:0 6px 6px 0;color:#f6d7a8}
+.fig{background:#0d1822;border:1px solid var(--line);border-radius:8px;padding:8px}
+.fig svg{display:block;width:100%;height:auto}
+.cap{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:2px 4px 8px}
+table.dossier{width:100%;border-collapse:collapse;font-size:15px}
+table.dossier th,table.dossier td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.dossier th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+table.dossier td.n{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums;max-width:55%}
+.game{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:960px){.game{grid-template-columns:1fr}}
+.lock{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.lock input{font-family:var(--mono);font-size:26px;font-weight:600;width:140px;text-align:center;background:#0a131b;color:var(--amber);border:1px solid var(--line);border-radius:6px;padding:6px}
+.lock input.word{width:220px;text-transform:uppercase;letter-spacing:.2em}
+select{background:#0a131b;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%}
+.grid18{display:grid;grid-template-columns:70px 1fr 1fr;gap:8px;align-items:center}
+.grid18 .h{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.grid18 .ax{font-family:var(--mono);font-size:13px;color:var(--amber)}
+.msg{border-left:4px solid var(--line);background:#0f1d2a;padding:10px 12px;border-radius:0 6px 6px 0}
+.msg.ok{border-color:var(--good)}
+.msg.no{border-color:var(--bad)}
+.msg b{display:block}
+details.hint{background:#0f1d2a;border:1px solid var(--line);border-radius:6px;padding:8px 12px}
+details.hint summary{cursor:pointer;font-weight:600}
+details.hint p{margin-top:6px}
+.route{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+@media (max-width:760px){.route{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.stop{background:#0f1d2a;border:1px solid var(--line);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:2px;text-align:left;color:var(--ink)}
+.stop .nr{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.stop b{font-size:15px}
+.stop.now{border-color:var(--amber)}
+.stop.done{border-color:var(--good)}
+.stop:disabled{opacity:.5;cursor:not-allowed}
+.big{font-family:var(--display);font-weight:900;font-size:58px;line-height:1;font-variant-numeric:tabular-nums}
+.big.good{color:var(--good)}
+.big.bad{color:var(--bad)}
+label.chk{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
+footer{font-size:13px;color:var(--muted)}
+.hidden{display:none!important}
+.shake{animation:shake .5s 3}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Escape room · De Vaartdokbrug zit vast<small>BRUGGENBOUW · BEWEEGBARE BRUGGEN (HOOFDSTUK XVIII) · FICTIEVE BRUG, REALISTISCHE WAARDEN</small></div>
+    <div class="hud" id="hud">
+      <div class="disp" id="clock"><small>TIJD</small>30:00</div>
+      <div class="disp" id="pen"><small>STRAF</small>+0:00</div>
+      <div class="letters" id="letters" aria-label="Verzamelde letters"></div>
+    </div>
+  </header>
+  <main id="app"></main>
+  <footer>Fictieve brug met realistische, vereenvoudigde waarden. Code gemaakt met hulp van AI (Claude); puzzels, berekeningen en verwijzingen naar de cursus na te kijken door de groep.</footer>
+</div>
+
+<script>
+/* =====================================================================
+   DE FICTIEVE BRUG
+   ===================================================================== */
+const BRUG={
+  naam:'Vaartdokbrug',
+  type:'Enkele basculebrug met kelder op de zuidoever, gevolgd door een vaste stalen overspanning',
+  rows:[
+    ['Beweegbare val (scharnier tot punt)','30,0 m'],
+    ['Vrije doorvaartbreedte','25,0 m'],
+    ['Vaste overspanning (steunpijler tot noordelijk landhoofd)','40,0 m'],
+    ['Breedte dek: 2 rijstroken van 3,0 m + 2 fietspaden','11,0 m'],
+    ['Dek van de val','orthotroop staal'],
+    ['Staartligger (scharnier tot ballastkist)','6,5 m'],
+    ['Openingshoek val','75°'],
+    ['Aandrijving: hydraulische vijzels (één per hoofdligger)','2']
+  ]
+};
+
+/* =====================================================================
+   RUIMTES — vaste volgorde, van zuid naar noord over de brug
+   ===================================================================== */
+const ROOMS=[
+  {id:1,naam:'Brugwachtershuis',plaats:'zuidoever',hfst:'XVIII §1',letter:'L'},
+  {id:2,naam:'Kelder: ballastkist',plaats:'onder de zuidoever',hfst:'XVIII §3.2',letter:'A'},
+  {id:3,naam:'Machinekamer: vijzels',plaats:'kelder',hfst:'XVIII §3.1–3.2',letter:'S'},
+  {id:4,naam:'Steunpijler: opleggingen',plaats:'noordkant van de doorvaart',hfst:'XXIV §2 en §6',letter:'B'},
+  {id:5,naam:'Vaste overspanning: remkracht',plaats:'op het dek',hfst:'III §1 (LM1, remkracht)',letter:'N'},
+  {id:6,naam:'Noordlandhoofd: voeg',plaats:'noordoever',hfst:'III §4 en XXV',letter:'A'}
+];
+const FINAL_WORD='BALANS';
+
+/* =====================================================================
+   STAAT EN KLOK
+   ===================================================================== */
+const TOTAL=1800;
+const S={start:null,penalty:0,running:false,solved:{},hints:0,tries:0,current:1,ended:false,gm:false,openedAt:null};
+const app=document.getElementById('app');
+let tick=null;
+const fmt=s=>{const n=s<0;s=Math.abs(Math.round(s));return (n?'-':'')+String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');};
+const used=()=>S.start?(Date.now()-S.start)/1000+S.penalty:S.penalty;
+const left=()=>TOTAL-used();
+function hud(){
+  const l=left();const c=document.getElementById('clock');
+  c.innerHTML=`<small>${S.gm?'SPELLEIDER':'TIJD'}</small>${S.gm?'—':fmt(Math.max(0,l))}`;c.classList.toggle('warn',!S.gm&&l<300);
+  document.getElementById('pen').innerHTML=`<small>STRAF</small>+${fmt(S.penalty)}`;
+  document.getElementById('letters').innerHTML=ROOMS.map(r=>`<span>${S.solved[r.id]?r.letter:''}</span>`).join('');
+  radar();
+  if(S.running&&!S.gm&&!S.ended&&l<=0)gameOver();
+}
+function startClock(){if(S.running)return;S.start=Date.now();S.running=true;tick=setInterval(hud,500);hud();}
+function penalty(s){if(S.gm)return;S.penalty+=s;hud();}
+function esc(t){return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* =====================================================================
+   TEKENINGEN
+   ===================================================================== */
+const MONO='font-family="IBM Plex Mono,monospace"';
+/* Langsdoorsnede, schaal 9 px per meter. Scharnier op x=270. */
+function elevation(o){
+  o=o||{};const hl=o.hl||0,open=o.open||0;
+  const tag=(n,x,y)=>`<g><circle cx="${x}" cy="${y}" r="13" fill="${hl===n?'#f2a33a':S.solved[n]?'#4cc38a':'#0a131b'}" stroke="#f2a33a" stroke-width="2"/><text x="${x}" y="${y+5}" ${MONO} font-size="14" font-weight="600" text-anchor="middle" fill="${hl===n||S.solved[n]?'#0a131b':'#f2a33a'}">${n}</text></g>`;
+  return `<svg viewBox="0 0 1000 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Langsdoorsnede van de fictieve Vaartdokbrug">
+  <rect width="1000" height="340" fill="#0d1822"/>
+  <rect x="280" y="232" width="250" height="108" fill="#173a52"/>
+  ${Array.from({length:6},(_,i)=>`<path d="M${296+i*38} ${250+(i%2)*16} q10 -5 20 0" stroke="#2f6b8f" fill="none" stroke-width="1.5"/>`).join('')}
+  <polygon points="0,200 150,200 150,340 0,340" fill="#3a4b5b"/>
+  <polygon points="150,200 280,200 280,340 150,340" fill="#2c3b49"/>
+  <rect x="164" y="212" width="102" height="114" fill="#0d1822" stroke="#3a4b5b" stroke-width="2"/>
+  <rect x="0" y="182" width="270" height="16" fill="#7d93a8"/>
+  <g><rect x="40" y="120" width="78" height="62" fill="#22384c" stroke="#5d7286"/><polygon points="34,122 79,96 124,122" fill="#2c4459" stroke="#5d7286"/><rect x="54" y="136" width="50" height="20" fill="#f2a33a" opacity=".8"/></g>
+  <g transform="rotate(${-open} 270 190)">
+    <rect x="270" y="180" width="270" height="18" fill="#9fb3c6" stroke="#0a131b"/>
+    <rect x="${270-58.5}" y="184" width="58.5" height="12" fill="#9fb3c6" stroke="#0a131b"/>
+    <rect x="${270-58.5-24}" y="146" width="48" height="38" fill="#55687a" stroke="#0a131b"/>
+  </g>
+  <circle cx="270" cy="190" r="7" fill="#0d1822" stroke="#f2a33a" stroke-width="3"/>
+  <line x1="230" y1="300" x2="244" y2="${206}" stroke="#c9d4dd" stroke-width="5"/>
+  <rect x="530" y="198" width="30" height="142" fill="#3a4b5b"/>
+  <polygon points="560,262 1000,262 1000,340 560,340" fill="#2c3b49"/>
+  <line x1="590" y1="262" x2="880" y2="262" stroke="#93a4b3" stroke-dasharray="12 10"/>
+  <rect x="540" y="180" width="360" height="18" fill="#9fb3c6" stroke="#0a131b"/>
+  <rect x="540" y="198" width="360" height="16" fill="#7d93a8" stroke="#0a131b"/>
+  <rect x="900" y="198" width="100" height="142" fill="#3a4b5b"/>
+  <rect x="902" y="182" width="98" height="16" fill="#7d93a8"/>
+  <line x1="901" y1="176" x2="901" y2="200" stroke="#f2a33a" stroke-width="2"/>
+  <polygon points="540,214 552,214 546,206" fill="#f2a33a"/><polygon points="888,214 900,214 894,206" fill="#f2a33a"/>
+  <g ${MONO} font-size="12" fill="#93a4b3">
+    <text x="20" y="232">ZUIDOEVER</text><text x="400" y="330" text-anchor="middle">VAARTDOK · doorvaart 25 m</text><text x="720" y="290" text-anchor="middle">kaaiweg</text><text x="950" y="232" text-anchor="middle">NOORD</text>
+    <text x="405" y="170" text-anchor="middle">val 30 m</text><text x="720" y="170" text-anchor="middle">vaste overspanning 40 m</text><text x="215" y="320" text-anchor="middle">kelder</text>
+  </g>
+  ${tag(1,79,92)}${tag(2,212,262)}${tag(3,248,300)}${tag(4,546,236)}${tag(5,720,236)}${tag(6,940,160)}
+  </svg>`;
+}
+/* Bovenaanzicht; zelfde x-schaal; vaart loopt verticaal. Ook gebruikt als radar. */
+function plan(o){
+  o=o||{};const shipY=o.shipY??360,open=o.open||0,crash=o.crash;
+  const valLen=270*Math.cos(open*Math.PI/180);
+  return `<rect x="0" y="0" width="1000" height="300" fill="#0d1822"/>
+  <rect x="280" y="0" width="250" height="300" fill="#173a52"/>
+  <rect x="0" y="0" width="280" height="300" fill="#2a3a48"/><rect x="530" y="0" width="470" height="300" fill="#2a3a48"/>
+  <rect x="150" y="120" width="120" height="60" fill="none" stroke="#93a4b3" stroke-dasharray="6 5"/>
+  <rect x="40" y="70" width="70" height="44" fill="#22384c" stroke="#5d7286"/>
+  <rect x="0" y="126" width="270" height="48" fill="#7d93a8"/>
+  <rect x="270" y="126" width="${valLen}" height="48" fill="${crash?'#ef6b5b':'#9fb3c6'}" stroke="#0a131b"/>
+  <rect x="530" y="122" width="30" height="56" fill="#3a4b5b"/>
+  <rect x="540" y="126" width="360" height="48" fill="#9fb3c6" stroke="#0a131b"/>
+  <rect x="900" y="118" width="100" height="64" fill="#3a4b5b"/>
+  <g transform="translate(405 ${shipY})"><path d="M-22 0 L0 -40 L22 0 L22 90 L-22 90 Z" fill="#d9dde1" stroke="#0a131b"/><rect x="-12" y="40" width="24" height="30" fill="#b44a3a"/></g>`;
+}
+function planSVG(o){
+  const tag=(n,x,y)=>`<g><circle cx="${x}" cy="${y}" r="13" fill="${S.solved[n]?'#4cc38a':'#0a131b'}" stroke="#f2a33a" stroke-width="2"/><text x="${x}" y="${y+5}" ${MONO} font-size="14" font-weight="600" text-anchor="middle" fill="${S.solved[n]?'#0a131b':'#f2a33a'}">${n}</text></g>`;
+  return `<svg viewBox="0 0 1000 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Grondplan van de fictieve Vaartdokbrug">${plan(o)}
+  <g ${MONO} font-size="12" fill="#c9d4dd"><text x="20" y="30">ZUIDOEVER</text><text x="405" y="30" text-anchor="middle">VAARTDOK</text><text x="980" y="30" text-anchor="end">NOORDOEVER</text>
+  <text x="210" y="205" text-anchor="middle">kelder (onder maaiveld)</text><text x="75" y="64" text-anchor="middle">brugwachter</text>
+  <text x="405" y="116" text-anchor="middle">val 30 m</text><text x="720" y="116" text-anchor="middle">vaste overspanning 40 m</text></g>
+  ${tag(1,75,92)}${tag(2,195,150)}${tag(3,245,150)}${tag(4,545,200)}${tag(5,720,150)}${tag(6,950,150)}
+  <g ${MONO} font-size="11" fill="#93a4b3"><text x="405" y="292" text-anchor="middle">↑ vaarrichting schip</text></g></svg>`;
+}
+function radar(){
+  const r=document.getElementById('radar');if(!r)return;
+  let p=S.gm?0:Math.min(1,Math.max(0,used()/TOTAL));
+  let y=330-p*(330-176);
+  if(S.ended==='win')y=-120;
+  r.innerHTML=plan({shipY:y,open:S.ended==='win'?75:0,crash:S.ended==='lose'});
+}
+
+/* ------- detailtekeningen per ruimte ------- */
+function axesSVG(){
+  return `<svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Assenstelsel van een brug">
+  <rect width="600" height="300" fill="#0d1822"/>
+  <polygon points="90,200 400,200 520,140 210,140" fill="#55687a" stroke="#9fb3c6" stroke-width="2"/>
+  <line x1="150" y1="170" x2="470" y2="170" stroke="#f2a33a" stroke-width="3"/><polygon points="470,163 486,170 470,177" fill="#f2a33a"/>
+  <text x="494" y="175" ${MONO} font-size="16" fill="#f2a33a">x · brugas</text>
+  <line x1="300" y1="170" x2="250" y2="245" stroke="#4cc38a" stroke-width="3"/><polygon points="244,238 246,256 258,246" fill="#4cc38a"/>
+  <text x="200" y="272" ${MONO} font-size="16" fill="#4cc38a">y · dwars</text>
+  <line x1="300" y1="170" x2="300" y2="74" stroke="#7fb0ff" stroke-width="3"/><polygon points="293,78 300,62 307,78" fill="#7fb0ff"/>
+  <text x="312" y="76" ${MONO} font-size="16" fill="#7fb0ff">z · verticaal</text>
+  <text x="20" y="34" ${MONO} font-size="13" fill="#93a4b3">ROTATIE OF TRANSLATIE · ROND OF LANGS WELKE AS?</text></svg>`;
+}
+function ballastSVG(){
+  const PX=20,HX=330,x=m=>HX+m*PX;
+  const ar=(xx,labs,anc)=>`<line x1="${xx}" y1="85" x2="${xx}" y2="176" stroke="#f2a33a" stroke-width="3"/><polygon points="${xx-7},168 ${xx+7},168 ${xx},180" fill="#f2a33a"/>`+labs.map((l,i)=>`<text x="${anc==='end'?xx-10:xx+10}" y="${96+i*17}" ${MONO} font-size="${i%2?12:14}" fill="${i%2?'#f6d7a8':'#f2a33a'}" text-anchor="${anc}">${l}</text>`).join('');
+  const dim=(a,b,y,t)=>`<line x1="${a}" y1="${y}" x2="${b}" y2="${y}" stroke="#93a4b3"/><line x1="${a}" y1="${y-6}" x2="${a}" y2="${y+6}" stroke="#93a4b3"/><line x1="${b}" y1="${y-6}" x2="${b}" y2="${y+6}" stroke="#93a4b3"/><text x="${(a+b)/2}" y="${y-6}" ${MONO} font-size="12" fill="#c9d4dd" text-anchor="middle">${t}</text>`;
+  return `<svg viewBox="0 0 1000 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Val met staartligger en ballastkist">
+  <rect width="1000" height="380" fill="#0d1822"/>
+  <polygon points="120,190 350,190 350,380 120,380" fill="#2c3b49"/><rect x="140" y="200" width="190" height="168" fill="#0d1822" stroke="#3a4b5b" stroke-width="2"/>
+  <rect x="350" y="290" width="650" height="90" fill="#173a52"/>
+  <rect x="${HX}" y="180" width="${x(30)-HX}" height="18" fill="#9fb3c6" stroke="#0a131b"/>
+  <rect x="${x(-6.5)}" y="184" width="${6.5*PX}" height="12" fill="#9fb3c6" stroke="#0a131b"/>
+  <rect x="${x(-6.5)-34}" y="196" width="68" height="64" fill="#55687a" stroke="#0a131b"/><text x="${x(-6.5)}" y="233" ${MONO} font-size="12" fill="#e6edf2" text-anchor="middle">BALLAST</text>
+  <circle cx="${HX}" cy="190" r="8" fill="#0d1822" stroke="#f2a33a" stroke-width="3"/>
+  ${ar(x(13.5),['G₁ = 1 500 kN','staal val'],'end')}${ar(x(15),['G₂ = 230 kN','slijtlaag'],'start')}${ar(x(15.5)+80,['G₃ = 120 kN','uitrusting'],'start')}
+  <line x1="${x(15.5)}" y1="178" x2="${x(15.5)+80}" y2="178" stroke="#f2a33a" stroke-dasharray="4 4"/><circle cx="${x(15.5)}" cy="178" r="4" fill="#f2a33a"/>
+  ${dim(HX,x(13.5),236,'13,5 m')}${dim(HX,x(15),262,'15,0 m')}${dim(HX,x(15.5),288,'15,5 m')}${dim(x(-6.5),HX,288,'6,5 m')}
+  </svg>`;
+}
+function jackSVG(){
+  const H=[400,180],t=66;/* 22 px per m */
+  const arc=(r,a1,a2,sw,col)=>{const p=a=>[H[0]+r*Math.cos(a*Math.PI/180),H[1]-r*Math.sin(a*Math.PI/180)];const [x1,y1]=p(a1),[x2,y2]=p(a2);return `<path d="M${x1} ${y1} A${r} ${r} 0 0 ${sw} ${x2} ${y2}" fill="none" stroke="${col}" stroke-width="3" marker-end="url(#ah-${col.slice(1)})"/>`;};
+  const mk=c=>`<marker id="ah-${c.slice(1)}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="${c}"/></marker>`;
+  return `<svg viewBox="60 30 760 370" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Machinekamer: vijzel op afstand t van het scharnier">
+  <defs>${mk('#f2a33a')}${mk('#7fb0ff')}${mk('#4cc38a')}</defs>
+  <rect width="1000" height="400" fill="#0d1822"/>
+  <polygon points="80,190 420,190 420,400 80,400" fill="#2c3b49"/><rect x="100" y="198" width="300" height="182" fill="#0d1822" stroke="#3a4b5b" stroke-width="2"/>
+  <rect x="420" y="268" width="580" height="132" fill="#173a52"/>
+  <rect x="0" y="172" width="80" height="18" fill="#7d93a8"/>
+  <rect x="${H[0]}" y="170" width="590" height="20" fill="#9fb3c6" stroke="#0a131b"/>
+  <path d="M985 162 l10 10 l-10 10 l10 10 l-10 10" fill="none" stroke="#0d1822" stroke-width="5"/>
+  <rect x="${H[0]-143}" y="174" width="143" height="12" fill="#9fb3c6" stroke="#0a131b"/>
+  <rect x="${H[0]-143-30}" y="186" width="60" height="52" fill="#55687a" stroke="#0a131b"/><text x="${H[0]-143}" y="216" ${MONO} font-size="11" fill="#e6edf2" text-anchor="middle">ballast</text>
+  <rect x="${H[0]-t-12}" y="270" width="24" height="100" fill="#4cc38a" stroke="#0a131b"/><rect x="${H[0]-t-4}" y="186" width="8" height="86" fill="#c9d4dd"/>
+  <circle cx="${H[0]-t}" cy="186" r="5" fill="#4cc38a"/>
+  <line x1="${H[0]-t-30}" y1="236" x2="${H[0]-t-30}" y2="266" stroke="#4cc38a" stroke-width="3" marker-end="url(#ah-4cc38a)"/>
+  <text x="${H[0]-t-36}" y="256" ${MONO} font-size="14" fill="#4cc38a" text-anchor="end">T (per vijzel)</text>
+  <text x="${H[0]-t-20}" y="362" ${MONO} font-size="12" fill="#4cc38a" text-anchor="end">vijzel trekt</text>
+  <circle cx="${H[0]}" cy="${H[1]}" r="8" fill="#0d1822" stroke="#f2a33a" stroke-width="3"/>
+  <line x1="${H[0]-t}" y1="190" x2="${H[0]-t}" y2="222" stroke="#93a4b3" stroke-dasharray="4 4"/><line x1="${H[0]}" y1="190" x2="${H[0]}" y2="222" stroke="#93a4b3" stroke-dasharray="4 4"/>
+  <line x1="${H[0]-t+3}" y1="216" x2="${H[0]-3}" y2="216" stroke="#f2a33a" stroke-width="2" marker-end="url(#ah-f2a33a)" marker-start="url(#ah-f2a33a)"/>
+  <text x="${H[0]-t+12}" y="244" ${MONO} font-size="15" font-weight="600" fill="#f2a33a">t = 3,0 m</text>
+  <text x="${H[0]+12}" y="208" ${MONO} font-size="12" fill="#f2a33a">scharnier</text>
+  ${arc(80,100,55,1,'#f2a33a')}<text x="380" y="72" ${MONO} font-size="13" fill="#f2a33a" text-anchor="end">restmoment uit de kelder</text><text x="380" y="90" ${MONO} font-size="13" fill="#f2a33a" text-anchor="end">(sluitend)</text>
+  ${arc(135,80,35,1,'#7fb0ff')}<text x="530" y="70" ${MONO} font-size="13" fill="#7fb0ff">windmoment open val:</text><text x="530" y="88" ${MONO} font-size="13" fill="#7fb0ff">1 290 kNm (sluitend)</text>
+  ${arc(80,150,195,0,'#4cc38a')}<text x="300" y="140" ${MONO} font-size="13" fill="#4cc38a" text-anchor="end">T · t (opent)</text>
+  <text x="700" y="330" ${MONO} font-size="13" fill="#c9d4dd">val (dicht getekend)</text>
+  </svg>`;
+}
+function bearingSVG(){
+  const pos={A:[560,110],B:[560,250],C:[880,110],D:[880,250]};
+  return `<svg viewBox="0 0 1000 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bovenaanzicht vaste overspanning met vier opleggingen">
+  <rect width="1000" height="360" fill="#0d1822"/>
+  <rect x="520" y="70" width="80" height="220" fill="#3a4b5b"/><rect x="860" y="70" width="80" height="220" fill="#3a4b5b"/>
+  <rect x="560" y="90" width="320" height="180" fill="#9fb3c6" opacity=".25" stroke="#9fb3c6"/>
+  <line x1="560" y1="110" x2="880" y2="110" stroke="#9fb3c6" stroke-width="6"/><line x1="560" y1="250" x2="880" y2="250" stroke="#9fb3c6" stroke-width="6"/>
+  ${Object.entries(pos).map(([k,[x,y]])=>`<rect x="${x-16}" y="${y-16}" width="32" height="32" fill="${k==='A'?'#f2a33a':'#0a131b'}" stroke="#f2a33a" stroke-width="2"/><text x="${x}" y="${y+5}" ${MONO} font-size="15" font-weight="600" text-anchor="middle" fill="${k==='A'?'#0a131b':'#f2a33a'}">${k}</text>`).join('')}
+  <g ${MONO} font-size="12" fill="#c9d4dd"><text x="560" y="320" text-anchor="middle">steunpijler (zuid)</text><text x="900" y="320" text-anchor="middle">noordlandhoofd</text>
+  <text x="720" y="185" text-anchor="middle">40 m</text><text x="735" y="104" text-anchor="middle">hoofdligger oost</text><text x="735" y="244" text-anchor="middle">hoofdligger west</text></g>
+  <line x1="120" y1="180" x2="380" y2="180" stroke="#f2a33a" stroke-width="2"/><polygon points="380,174 394,180 380,186" fill="#f2a33a"/><text x="230" y="170" ${MONO} font-size="13" fill="#f2a33a">x · brugas</text>
+  <line x1="200" y1="240" x2="200" y2="110" stroke="#4cc38a" stroke-width="2"/><polygon points="194,110 200,96 206,110" fill="#4cc38a"/><text x="210" y="120" ${MONO} font-size="13" fill="#4cc38a">y · dwars</text>
+  </svg>`;
+}
+function laneSVG(){
+  const mk=c=>`<marker id="al-${c.slice(1)}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="${c}"/></marker>`;
+  const x0=200,pm=600/11;let cx=x0;
+  const strips=[['fietspad',2.5,'#22384c','2,5 m'],['rijstrook 1',3,'#5a4a2a','w₁ = 3,0 m'],['rijstrook 2',3,'#2a3a48','3,0 m'],['fietspad',2.5,'#22384c','2,5 m']].map(([n,w,c,l])=>{const x=cx;cx+=w*pm;return `<rect x="${x}" y="318" width="${w*pm}" height="34" fill="${c}" stroke="#9fb3c6"/><text x="${x+w*pm/2}" y="340" ${MONO} font-size="12" fill="${n==='rijstrook 1'?'#f2a33a':'#c9d4dd'}" text-anchor="middle">${n}</text><text x="${x+w*pm/2}" y="372" ${MONO} font-size="12" fill="#93a4b3" text-anchor="middle">${l}</text>`;}).join('');
+  return `<svg viewBox="0 0 1000 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Zijaanzicht van de vaste overspanning met belastingsmodel 1 en remkracht, en dwarsdoorsnede met rijstroken">
+  <defs>${mk('#f2a33a')}${mk('#ef6b5b')}${mk('#93a4b3')}</defs>
+  <rect width="1000" height="400" fill="#0d1822"/>
+  <text x="20" y="28" ${MONO} font-size="12" fill="#93a4b3">ZIJAANZICHT</text>
+  ${Array.from({length:19},(_,i)=>`<line x1="${140+i*40}" y1="92" x2="${140+i*40}" y2="140" stroke="#f2a33a" stroke-width="1.4" marker-end="url(#al-f2a33a)"/>`).join('')}
+  <line x1="130" y1="92" x2="870" y2="92" stroke="#f2a33a" stroke-width="1.4"/>
+  <text x="640" y="84" ${MONO} font-size="13" fill="#f2a33a">q₁k = 9 kN/m² op rijstrook 1</text>
+  <line x1="470" y1="40" x2="470" y2="140" stroke="#f2a33a" stroke-width="4" marker-end="url(#al-f2a33a)"/><line x1="520" y1="40" x2="520" y2="140" stroke="#f2a33a" stroke-width="4" marker-end="url(#al-f2a33a)"/>
+  <text x="455" y="50" ${MONO} font-size="13" fill="#f2a33a" text-anchor="end">tandem: Q₁k = 300 kN per as</text>
+  <rect x="120" y="146" width="760" height="22" fill="#9fb3c6" stroke="#0a131b"/>
+  <polygon points="120,168 106,192 134,192" fill="#3a4b5b" stroke="#f2a33a"/><line x1="100" y1="196" x2="140" y2="196" stroke="#f2a33a"/>
+  <circle cx="880" cy="180" r="11" fill="#3a4b5b" stroke="#c9d4dd"/><line x1="862" y1="194" x2="898" y2="194" stroke="#c9d4dd"/>
+  <text x="120" y="214" ${MONO} font-size="12" fill="#f2a33a" text-anchor="middle">A en B</text><text x="880" y="214" ${MONO} font-size="12" fill="#c9d4dd" text-anchor="middle">C en D</text>
+  <line x1="700" y1="186" x2="560" y2="186" stroke="#ef6b5b" stroke-width="4" marker-end="url(#al-ef6b5b)"/><text x="710" y="191" ${MONO} font-size="14" font-weight="600" fill="#ef6b5b">Qlk = ? (remmen)</text>
+  <line x1="60" y1="180" x2="96" y2="180" stroke="#ef6b5b" stroke-width="3" marker-end="url(#al-ef6b5b)" marker-start="url(#al-ef6b5b)"/>
+  <line x1="120" y1="240" x2="880" y2="240" stroke="#93a4b3" marker-end="url(#al-93a4b3)" marker-start="url(#al-93a4b3)"/><text x="500" y="234" ${MONO} font-size="13" fill="#c9d4dd" text-anchor="middle">L = 40 m</text>
+  <text x="20" y="300" ${MONO} font-size="12" fill="#93a4b3">DWARSDOORSNEDE (11 m)</text>
+  ${strips}
+  </svg>`;
+}
+function jointSVG(){
+  return `<svg viewBox="0 0 1000 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Doorsnede van de voeg tussen dek en noordlandhoofd">
+  <rect width="1000" height="340" fill="#0d1822"/>
+  <rect x="60" y="120" width="420" height="40" fill="#9fb3c6" stroke="#0a131b"/><rect x="60" y="160" width="420" height="60" fill="#7d93a8" stroke="#0a131b"/>
+  <rect x="540" y="120" width="400" height="220" fill="#3a4b5b"/><rect x="540" y="120" width="400" height="16" fill="#7d93a8"/>
+  <rect x="470" y="220" width="40" height="12" fill="#f2a33a"/><text x="490" y="252" ${MONO} font-size="12" fill="#f2a33a" text-anchor="middle">oplegging C/D</text>
+  <rect x="480" y="112" width="60" height="10" fill="none" stroke="#f2a33a" stroke-dasharray="4 3"/>
+  <text x="510" y="100" ${MONO} font-size="13" fill="#f2a33a" text-anchor="middle">voeg ?</text>
+  <line x1="300" y1="70" x2="440" y2="70" stroke="#ef6b5b" stroke-width="3"/><polygon points="440,64 454,70 440,76" fill="#ef6b5b"/><text x="300" y="60" ${MONO} font-size="13" fill="#ef6b5b">ΔL+ bij warmte</text>
+  <line x1="300" y1="290" x2="160" y2="290" stroke="#7fb0ff" stroke-width="3"/><polygon points="160,284 146,290 160,296" fill="#7fb0ff"/><text x="160" y="318" ${MONO} font-size="13" fill="#7fb0ff">ΔL− bij koude</text>
+  <text x="70" y="200" ${MONO} font-size="13" fill="#0a131b">40 m vanaf vaste oplegging A</text>
+  </svg>`;
+}
+function deskSVG(){
+  return `<svg viewBox="0 0 1000 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Besturingspaneel">
+  <rect width="1000" height="300" fill="#0d1822"/>
+  ${[0,1,2].map(i=>`<rect x="${90+i*290}" y="40" width="240" height="150" rx="8" fill="#0a131b" stroke="#2a3d4f" stroke-width="3"/><text x="${210+i*290}" y="122" ${MONO} font-size="16" text-anchor="middle" fill="${i===1?'#ef6b5b':'#93a4b3'}">${['SYSTEEM: RESET','TYPE BRUG: ???','VIJZELS: UIT'][i]}</text>`).join('')}
+  <rect x="60" y="220" width="880" height="50" rx="6" fill="#22384c"/>
+  ${Array.from({length:12},(_,i)=>`<circle cx="${110+i*70}" cy="245" r="9" fill="${i%4===1?'#ef6b5b':'#2a3d4f'}"/>`).join('')}
+  </svg>`;
+}
+
+/* =====================================================================
+   PUZZELS
+   ===================================================================== */
+const OPTS18=['kantelbrug','rolbrug','ophaalbrug','basculebrug','draaibrug','hefbrug','tafelbrug','zweefbrug','bestaat niet'];
+const OK18={'x-r':['kantelbrug'],'x-t':['rolbrug','zweefbrug'],'y-r':['ophaalbrug','basculebrug'],'y-t':['bestaat niet'],'z-r':['draaibrug'],'z-t':['hefbrug','tafelbrug']};
+
+const PUZ={
+1:{
+  titel:'Het systeem herkent de brug niet meer',
+  tekst:'Na de stroompanne staat het besturingssysteem in fabrieksinstelling. Het vraagt eerst de indeling van beweegbare bruggen naar hun beweging, zoals in de cursus. Vul elk vak in met een brugtype dat zo beweegt; één vak bestaat niet in de cursus. Geef daarna aan welk type de Vaartdokbrug is.',
+  fig:()=>axesSVG(),
+  form:()=>`<div class="grid18"><span></span><span class="h">rotatie om</span><span class="h">translatie langs</span>
+    ${['x','y','z'].map(a=>`<span class="ax">${a}-as</span>${['r','t'].map(k=>`<select id="g-${a}-${k}" aria-label="${a}-as ${k==='r'?'rotatie':'translatie'}"><option value="">kies…</option>${OPTS18.map(o=>`<option>${o}</option>`).join('')}</select>`).join('')}`).join('')}</div>
+    <label for="g-ons" class="small">En welk type is de Vaartdokbrug zelf? (bekijk de langsdoorsnede)</label>
+    <select id="g-ons"><option value="">kies…</option>${['kantelbrug','ophaalbrug','basculebrug','draaibrug','hefbrug','tafelbrug'].map(o=>`<option>${o}</option>`).join('')}</select>
+    <button class="btn" id="try">Bevestig</button>`,
+  check(){
+    let n=0;for(const k in OK18){const v=document.getElementById('g-'+k).value;if(OK18[k].includes(v))n++;}
+    const ons=document.getElementById('g-ons').value;
+    if(n===6&&ons==='basculebrug')return {ok:true};
+    if(n===6&&ons==='ophaalbrug')return {ok:false,t:'De tabel klopt. Maar een ophaalbrug heeft een balans boven op een portaal. Bij deze brug zit het contragewicht aan de staartligger, in een kelder.'};
+    if(n===6)return {ok:false,t:'De tabel klopt. Kijk nu naar de langsdoorsnede: hoe beweegt de val, en waar zit het contragewicht?'};
+    return {ok:false,t:`${n} van de 6 vakken zijn juist. Kijk naar tabel 18.1: welke beweging maakt elk type, en rond of langs welke as?`};
+  },
+  hints:['De x-as is de brugas, de y-as ligt horizontaal dwars op de brug en de z-as is verticaal.','Een draaibrug draait in een horizontaal vlak: rond welke as is dat? Een hefbrug gaat recht omhoog: langs welke as?','Het vak zonder brugtype is translatie langs de y-as. De Vaartdokbrug heeft een ballastkist aan een staartligger in een kelder.'],
+  uitleg:'Het systeem start op: "Type: basculebrug, rotatie om de y-as." Bij een basculebrug draait de val rond een horizontale as dwars op de brug en wordt hij in evenwicht gehouden door een ballastkist aan de staartligger. Die ballastkist staat in de kelder, dus daar gaan jullie nu naartoe.'
+},
+2:{
+  titel:'De ballastkist is leeggelopen',
+  tekst:'Bij de laatste herstelling werd de ballastkist leeggemaakt. Naast de kist liggen betonblokken van 50 kN. Hoeveel blokken leg je in de kist? Vul de kist zoals de cursus het voorschrijft voor een basculebrug.',
+  fig:()=>ballastSVG(),
+  dossier:[['Eigengewicht stalen val G₁','1 500 kN'],['Slijtlaag G₂','230 kN'],['Leuningen, verlichting, slagboom G₃','120 kN'],['Arm G₁ tot scharnier','13,5 m'],['Arm G₂','15,0 m'],['Arm G₃','15,5 m'],['Arm ballastkist','6,5 m'],['Staartligger en lege kist','verwaarloosd']],
+  form:()=>`<div class="lock"><input id="code" inputmode="numeric" maxlength="4" placeholder="—" aria-label="Aantal blokken"><button class="btn" id="try">Vul de kist</button></div>`,
+  check(){const v=parseInt(document.getElementById('code').value,10);
+    if(v===78)return {ok:true};
+    if(v===79)return {ok:false,t:'Bijna. Met 79 blokken weegt de ballast net te zwaar: de brug zou vanzelf willen openen. Wat zegt de cursus over de richting van het resulterende moment?'};
+    if(v>79&&v<85)return {ok:false,t:'Te zwaar: de ballast trekt de val omhoog.'};
+    if(v>=70&&v<78)return {ok:false,t:'Te licht: de vijzels zouden te veel van het gewicht moeten dragen.'};
+    if(v>=3000)return {ok:false,t:'Je antwoordt in kN. De vraag is hoeveel blokken van 50 kN.'};
+    return {ok:false,t:'De vijzels slaan af. Het evenwicht rond het scharnier klopt niet.'};},
+  hints:['Rond het scharnier moeten de momenten bijna in evenwicht zijn: G_ballast · b ≈ Σ G_i · d_i.','Σ G_i · d_i = 1 500·13,5 + 230·15,0 + 120·15,5. Deel door 6,5 m en door 50 kN per blok.','Hoofdstuk XVIII §3.2: de ballastkist wordt zo uitgebalanceerd dat een licht sluitend resulterend moment overblijft.'],
+  uitleg:'Moment van de val: 20 250 + 3 450 + 1 860 = 25 560 kNm. Evenwicht vraagt 25 560 / 6,5 = 3 932 kN, dus 78,6 blokken. Met 78 blokken (3 900 kN) blijft een klein sluitend moment van 210 kNm over. Zo zakt de brug vanzelf dicht als de aandrijving uitvalt. Onthoud die 210 kNm: de machinekamer heeft ze nodig.'
+},
+3:{
+  titel:'De vijzels staan op de verkeerde druk',
+  tekst:'De ballast is in orde. Nu moet de druk van de twee hydraulische vijzels ingesteld worden. Bereken de kracht die één vijzel moet kunnen leveren om de val te openen tegen de wind in.',
+  fig:()=>jackSVG(),
+  dossier:[['Resterend sluitend moment (uit de kelder)','zelf invullen'],['Windmoment op de open val (bedieningswind)','1 290 kNm'],['Arm vijzel tot scharnier t','3,0 m'],['Aantal vijzels','2'],['Wrijving in het scharnier','verwaarloosd']],
+  form:()=>`<div class="lock"><input id="code" inputmode="numeric" maxlength="4" placeholder="kN" aria-label="Kracht per vijzel in kN"><button class="btn" id="try">Stel de druk in</button></div>`,
+  check(){const v=parseInt(document.getElementById('code').value,10);
+    if(v===250)return {ok:true};
+    if(v===500)return {ok:false,t:'Dat is de totale kracht. Er zijn twee vijzels.'};
+    if(v===70||v===35)return {ok:false,t:'Je vergeet de wind op de open val.'};
+    if(v===430||v===215)return {ok:false,t:'Je gebruikt het windmoment, maar niet het resterende moment uit de kelder.'};
+    if(v===1500||v===750)return {ok:false,t:'Je vergeet te delen door de arm t van de vijzel.'};
+    return {ok:false,t:'De pompen alarmeren: verkeerde druk.'};},
+  hints:['De vijzels moeten twee momenten overwinnen: het sluitend moment dat bewust overblijft, en het windmoment.','Vergelijk met de ophaalbrug in hoofdstuk XVIII §3.1: T = (G_dek·d − G_ballast·b) / t.','T_totaal = (210 + 1 290) / 3,0. Verdeel over de vijzels.'],
+  uitleg:'T = (210 + 1 290) / 3,0 = 500 kN, dus 250 kN per vijzel. Het bewust behouden sluitende moment maakt de ophaalkracht een beetje groter, maar het is een veiligheid: de brug opent nooit vanzelf bij trillingen of windzuiging. De val is klaar. Nu naar de overkant van de doorvaart.'
+},
+4:{
+  titel:'De vaste overspanning is losgeslagen',
+  tekst:'Voor de val mag opengaan, moet de vaste overspanning aan de noordkant veilig staan. Bij onderhoud werden de geleidingen van drie opleggingen verwijderd. Oplegging A is volledig vast. Kies voor B, C en D wat ze moeten toelaten.',
+  fig:()=>bearingSVG(),
+  dossier:[['A (steunpijler, oost)','volledig vast'],['Overspanning','40 m, stalen dek'],['Doel','vrij uitzetten zonder dwangkrachten, maar stabiel']],
+  form:()=>`${['B','C','D'].map(k=>`<label for="b-${k}" class="small">Oplegging ${k}</label><select id="b-${k}"><option value="">kies…</option><option value="vast">vast</option><option value="langs">beweegbaar in langsrichting (x)</option><option value="dwars">beweegbaar in dwarsrichting (y)</option><option value="alzijdig">alzijdig beweegbaar</option></select>`).join('')}
+    <button class="btn" id="try">Zet de opleggingen vast</button>`,
+  check(){const b=document.getElementById('b-B').value,c=document.getElementById('b-C').value,d=document.getElementById('b-D').value;
+    if(b==='dwars'&&c==='langs'&&d==='alzijdig')return {ok:true};
+    if([b,c,d].includes('vast'))return {ok:false,t:'Er mag hooguit één volledig vaste oplegging zijn; anders ontstaan parasitaire krachten door temperatuur.'};
+    if(d!=='alzijdig')return {ok:false,t:'Denk aan de oplegging die het verst van A ligt: in welke richtingen zet de brug daar uit?'};
+    if(b==='langs'&&c==='dwars')return {ok:false,t:'Omgekeerd. Op dezelfde steunpijler als A beweegt de brug in de lengte niet, maar wel in de breedte. Aan de overkant is het andersom.'};
+    return {ok:false,t:'De overspanning verschuift of klemt. Waar zet de brug uit, en waar moet ze geleid worden?'};},
+  hints:['Hoofdstuk XXIV §6: hooguit één volledig vaste oplegging; de andere voorkomen enkel beweging in de richtingen die nodig zijn voor de stabiliteit.','B ligt op dezelfde steunpijler als A: de afstand tot A is dwars op de brug. C ligt op één lijn met A in de langsrichting.','B: beweegbaar dwars; C: beweegbaar langs; D: alzijdig.'],
+  uitleg:'A is vast. B ligt op dezelfde pijler, dus de breedte van de brug moet er kunnen uitzetten: beweegbaar in dwarsrichting. C ligt in lijn met A en moet de lengteverandering van 40 m volgen, maar houdt de brug zijdelings op zijn plaats: beweegbaar in langsrichting. D is alzijdig beweegbaar. A en B houden de brug samen in de langsrichting vast. Dat is belangrijk voor de volgende ruimte.'
+},
+5:{
+  titel:'De remkracht moet ingegeven worden',
+  tekst:'Het monitoringsysteem van de vaste overspanning vraagt de karakteristieke remkracht waarop de vaste opleggingen A en B gecontroleerd worden. Gebruik de formule uit hoofdstuk III.',
+  fig:()=>laneSVG(),
+  dossier:[['Tandemaslast rijstrook 1, Q₁k (per as)','300 kN'],['Verdeelde last rijstrook 1, q₁k','9 kN/m²'],['Breedte rijstrook 1, w₁','3,0 m'],['Lengte brugdek L','40 m'],['Aanpassingsfactoren','geen (nieuwe brug)']],
+  form:()=>`<div class="lock"><input id="code" inputmode="numeric" maxlength="4" placeholder="kN" aria-label="Remkracht in kN"><button class="btn" id="try">Bevestig</button></div>`,
+  check(){const v=parseInt(document.getElementById('code').value,10);
+    if(v===468)return {ok:true};
+    if(v===408||v===360)return {ok:false,t:'Je mist een deel van de formule. Gebruik zowel de tandem als de verdeelde last.'};
+    if(v===1440||v===1548)return {ok:false,t:'Kijk nog eens naar de factoren 1,2 en 0,10 in de formule.'};
+    if(v===800||v===180)return {ok:false,t:'Dat zijn de grenzen van de formule. Ligt de berekende waarde ertussen?'};
+    return {ok:false,t:'Het systeem weigert: waarde onrealistisch.'};},
+  hints:['Hoofdstuk III: Qlk = 1,2·Q₁k + 0,10·q₁k·w₁·L, met 180 kN ≤ Qlk ≤ 800 kN.','1,2·300 = 360 kN. Reken nu het tweede deel uit.'],
+  uitleg:'Qlk = 1,2·300 + 0,10·9·3,0·40 = 360 + 108 = 468 kN. Dat ligt tussen 180 en 800 kN, dus de waarde blijft. De remkracht gaat naar de opleggingen die de brug in de lengterichting vasthouden, A en B, en zo naar de steunpijler. Laatste stop: de voeg aan het noordlandhoofd.'
+},
+6:{
+  titel:'De voeg zit klem',
+  tekst:'De oude voeg aan het noordlandhoofd is te klein en klemt de brug vast. Bereken de totale lengteverandering die de voeg moet opnemen, en kies een geschikt voegtype.',
+  fig:()=>jointSVG(),
+  dossier:[['Afstand vaste oplegging A tot voeg','40 m'],['Uitzettingscoëfficiënt staal α','12·10⁻⁶ /°C'],['Basisreferentietemperatuur T₀','10 °C'],['Min. brugtemperatuur stalen dek (Gent)','−18 °C'],['Max. brugtemperatuur stalen dek (Gent)','+54 °C']],
+  form:()=>`<div class="lock"><input id="code" inputmode="numeric" maxlength="3" placeholder="mm" aria-label="Totale lengteverandering in mm"></div>
+    <label for="vtype" class="small">Voegtype</label>
+    <select id="vtype"><option value="">kies…</option><option value="massa">flexibele voegmassa (compoundvoeg)</option><option value="rand">voeg met randprofiel (enkelvoudig)</option><option value="vinger">uitkragende voeg (vingervoeg)</option><option value="lamel">lamellenvoeg</option></select>
+    <button class="btn" id="try">Plaats de voeg</button>`,
+  check(){const v=parseInt(document.getElementById('code').value,10),t=document.getElementById('vtype').value;
+    if(v===35&&t==='rand')return {ok:true};
+    if(v===35&&t==='massa')return {ok:false,t:'De lengte klopt, maar een compoundvoeg neemt maar ± 10 mm op. Hier zet de brug 21 mm uit.'};
+    if(v===35&&(t==='vinger'||t==='lamel'))return {ok:false,t:'De lengte klopt. Dit voegtype kan het aan, maar het is zwaar overgedimensioneerd en duurder dan nodig.'};
+    if(v===64||v===63)return {ok:false,t:'Je gebruikt het verschil tussen de schaduwtemperaturen of een verkeerd temperatuurverschil. Ga uit van de brugtemperaturen en T₀.'};
+    if(v===21||v===13)return {ok:false,t:'Dat is maar één richting. De voeg moet zowel uitzetten als krimpen opvangen.'};
+    if(v===25||v===26)return {ok:false,t:'Gebruik de brugtemperaturen van een stalen dek, niet de schaduwtemperaturen.'};
+    return {ok:false,t:'De voeg past niet. Reken de uitzetting nog eens na.'};},
+  hints:['ΔL = α · L · ΔT, met ΔT telkens ten opzichte van T₀ = 10 °C.','ΔT+ = 54 − 10 = 44 °C en ΔT− = 10 − (−18) = 28 °C. Tel beide verplaatsingen op.','12·10⁻⁶ · 40 000 mm · 72 °C ≈ 35 mm. Welke voeg neemt dat op volgens hoofdstuk XXV?'],
+  uitleg:'ΔL+ = 12·10⁻⁶ · 40 000 · 44 = 21 mm en ΔL− = 12·10⁻⁶ · 40 000 · 28 = 13 mm, samen ongeveer 35 mm. Een compoundvoeg haalt maar ± 10 mm. Een voeg met randprofiel neemt tot 80 à 100 mm op en wordt in België zeer vaak toegepast. Alle ruimtes zijn klaar. Keer terug naar het brugwachtershuis.'
+}
+};
+
+/* =====================================================================
+   SCHERMEN
+   ===================================================================== */
+function intro(){
+  S.ended=false;
+  app.innerHTML=`<section class="panel stack">
+    <div class="two">
+      <div class="stack">
+        <div class="eyebrow">Maandag · 05:58 · Vaartdok, haven van Gent</div>
+        <h1>Een zeeschip wacht. De brug gaat niet open.</h1>
+        <p>Na een stroompanne staat de Vaartdokbrug in storing en de brugwachter is onbereikbaar. Jullie zijn het ingenieursteam van wacht. Werk je van zuid naar noord door de brug, los in elke ruimte de storing op en open de brug voor het schip ertegen vaart.</p>
+        <div class="radio">📻 Havenkapiteinsdienst: "Vaartdokbrug, de MV Schelde Trader vaart nu het dok in. Ze kan niet meer stoppen. U heeft dertig minuten. Over."</div>
+        <div class="row"><button class="btn" id="go">Start de klok (30 minuten)</button>
+          <label class="chk"><input type="checkbox" id="gm"> Spelleidermodus (geen klok, alle ruimtes open)</label></div>
+        <div class="row"><button class="btn ghost" id="demo-lose">Voorbeeld: game over</button><button class="btn ghost" id="demo-win">Voorbeeld: gewonnen</button></div>
+        <p class="small muted">Een hint kost 2 minuten, een fout antwoord 1 minuut. Elke opgeloste ruimte geeft een letter; samen vormen ze het wachtwoord om de brug te openen.</p>
+      </div>
+      <div class="stack">
+        <h3>De brug in cijfers</h3>
+        <table class="dossier"><tbody>${BRUG.rows.map(r=>`<tr><td>${r[0]}</td><td class="n">${r[1]}</td></tr>`).join('')}</tbody></table>
+      </div>
+    </div>
+    <div class="fig"><div class="cap"><span>Langsdoorsnede Vaartdokbrug (fictief) · zuid ← → noord</span><span>route 1 → 6</span></div>${elevation()}</div>
+  </section>`;
+  document.getElementById('demo-lose').addEventListener('click',()=>{S.gm=true;gameOver();});
+  document.getElementById('demo-win').addEventListener('click',()=>{S.gm=true;win();});
+  document.getElementById('go').addEventListener('click',()=>{S.gm=document.getElementById('gm').checked;if(!S.gm)startClock();else{hud();}room(1);});
+}
+
+function routeBar(){
+  return `<div class="route">${ROOMS.map(r=>{
+    const acc=S.gm||S.solved[r.id]||r.id===nextRoom();
+    return `<button class="stop ${S.solved[r.id]?'done':''} ${r.id===S.current?'now':''}" data-go="${r.id}" ${acc?'':'disabled'}><span class="nr">${r.id} · ${esc(r.plaats)}</span><b>${esc(r.naam)}</b></button>`;}).join('')}</div>`;
+}
+const nextRoom=()=>{for(const r of ROOMS)if(!S.solved[r.id])return r.id;return 7;};
+
+function room(id){
+  if(S.ended)return;
+  S.current=id;const P=PUZ[id],R=ROOMS[id-1],done=!!S.solved[id];
+  app.innerHTML=`<div class="stack">${routeBar()}
+  <div class="game">
+    <section class="panel stack" style="padding:12px">
+      <div class="fig"><div class="cap"><span>Je bent hier · ruimte ${id}</span><span>${esc(R.plaats)}</span></div>${elevation({hl:id})}</div>
+      <div class="fig"><div class="cap"><span>Ruimte ${id} · ${esc(R.naam)}</span><span>cursus: ${esc(R.hfst)}</span></div>${P.fig()}</div>
+    </section>
+    <section class="panel stack">
+      <div class="eyebrow">Ruimte ${id} van 6 · ${esc(R.naam)}</div>
+      <h2>${esc(P.titel)}</h2>
+      <p>${esc(P.tekst)}</p>
+      ${P.dossier?`<table class="dossier"><thead><tr><th>Uit het dossier</th><th style="text-align:right">Waarde</th></tr></thead><tbody>${P.dossier.map(d=>`<tr><td>${d[0]}</td><td class="n">${d[1]}</td></tr>`).join('')}</tbody></table>`:''}
+      <div class="stack ${done?'hidden':''}" id="form">${P.form()}</div>
+      <div id="out"></div>
+      <div class="stack ${done?'hidden':''}" id="hints">${P.hints.map((h,i)=>`<details class="hint"><summary>Hint ${i+1} (−2 min)</summary><p>${esc(h)}</p></details>`).join('')}</div>
+      <div class="row" id="nav"></div>
+    </section></div></div>`;
+  app.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>room(+b.dataset.go)));
+  app.querySelectorAll('details.hint').forEach(d=>d.addEventListener('toggle',()=>{if(d.open&&!d.dataset.used){d.dataset.used='1';S.hints++;penalty(120);}}));
+  const tr=document.getElementById('try');
+  if(tr){tr.addEventListener('click',()=>attempt(id));app.querySelectorAll('#form input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')attempt(id);}));}
+  const first=app.querySelector('#form input,#form select');if(first&&!done)first.focus();
+  if(done)showSolved(id);
+}
+
+function attempt(id){
+  if(S.ended)return;
+  const r=PUZ[id].check();S.tries++;
+  const out=document.getElementById('out');
+  if(r.ok){S.solved[id]=true;hud();showSolved(id);return;}
+  penalty(60);
+  out.innerHTML=`<div class="msg no"><b>Fout, −1 minuut</b>${esc(r.t)}</div>`;
+}
+function showSolved(id){
+  document.getElementById('form').classList.add('hidden');
+  document.getElementById('hints').classList.add('hidden');
+  document.getElementById('out').innerHTML=`<div class="msg ok"><b>Opgelost · letter: ${ROOMS[id-1].letter}</b>${esc(PUZ[id].uitleg)}</div>`;
+  const n=nextRoom(),nav=document.getElementById('nav');
+  nav.innerHTML=n<=6?`<button class="btn" id="nx">Verder naar ruimte ${n}: ${esc(ROOMS[n-1].naam)} →</button>`:`<button class="btn" id="nx">Terug naar het brugwachtershuis →</button>`;
+  document.getElementById('nx').addEventListener('click',()=>n<=6?room(n):finale());
+  document.querySelectorAll('.stop').forEach(b=>{const r=+b.dataset.go;b.classList.toggle('done',!!S.solved[r]);b.disabled=!(S.gm||S.solved[r]||r===nextRoom());});
+}
+
+function finale(){
+  if(S.ended)return;
+  const got=ROOMS.map(r=>r.letter);
+  app.innerHTML=`<section class="panel stack">
+    <div class="eyebrow">Brugwachtershuis · laatste stap</div>
+    <h2>Het systeem vraagt het wachtwoord</h2>
+    <p>Alle storingen zijn opgelost. Op het scherm verschijnt: <b>"Geef het principe waarop elke beweegbare brug steunt."</b> De zes letters die jullie verzamelden staan door elkaar: <b style="font-family:var(--mono);letter-spacing:.2em">${got.join(' ')}</b></p>
+    <div class="lock"><input class="word" id="word" maxlength="6" placeholder="······" aria-label="Wachtwoord"><button class="btn" id="open">Open de brug</button></div>
+    <div id="out"></div>
+    <details class="hint"><summary>Hint (−2 min)</summary><p>Ballastkist, contragewicht, sluitend moment: het gaat altijd om …</p></details>
+    <div class="fig"><div class="cap"><span>Langsdoorsnede</span><span></span></div><div id="elev">${elevation()}</div></div>
+  </section>`;
+  app.querySelector('details.hint').addEventListener('toggle',e=>{const d=e.target;if(d.open&&!d.dataset.used){d.dataset.used='1';S.hints++;penalty(120);}});
+  const w=document.getElementById('word');w.focus();
+  const go=()=>{if(S.ended)return;
+    if(w.value.trim().toUpperCase()===FINAL_WORD){win();}
+    else{penalty(60);document.getElementById('out').innerHTML=`<div class="msg no"><b>Toegang geweigerd, −1 minuut</b>Herschik de zes letters.</div>`;}};
+  document.getElementById('open').addEventListener('click',go);w.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+}
+
+function animateOpen(target){
+  const el=document.getElementById(target);if(!el)return;
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){el.innerHTML=elevation({open:75});return;}
+  let a=0;const step=()=>{a+=1.5;el.innerHTML=elevation({open:Math.min(75,a)});if(a<75)requestAnimationFrame(step);};step();
+}
+
+function win(){
+  S.ended='win';clearInterval(tick);hud();
+  const t=used();
+  app.innerHTML=`<section class="panel stack">
+    <div class="eyebrow">Brugwachtershuis · 06:${String(Math.min(59,Math.round(t/60))).padStart(2,'0')}</div>
+    <h1>De val gaat open. De MV Schelde Trader vaart door.</h1>
+    <div class="row" style="gap:28px">
+      <div><div class="big good">${S.gm?'—':fmt(t)}</div><div class="muted">gebruikte tijd incl. straf</div></div>
+      <div><div class="big" style="color:var(--amber)">${S.hints}</div><div class="muted">hints</div></div>
+      <div><div class="big" style="color:var(--amber)">${S.tries}</div><div class="muted">pogingen</div></div>
+    </div>
+    <div class="radio">📻 "Vaartdokbrug, hier de Schelde Trader. Mooi werk, ingenieurs. Over en sluiten."</div>
+    <div class="fig"><div class="cap"><span>Langsdoorsnede · val open (75°)</span><span>balans: licht sluitend moment, vijzels 2 × 250 kN</span></div><div id="elev"></div></div>
+    <div class="row"><button class="btn" id="again">Opnieuw spelen</button></div>
+  </section>`;
+  animateOpen('elev');
+  document.getElementById('again').addEventListener('click',()=>location.reload());
+}
+
+function gameOver(){
+  S.ended='lose';clearInterval(tick);hud();
+  const n=Object.keys(S.solved).length;
+  app.innerHTML=`<section class="panel stack shake" id="go-panel">
+    <div class="eyebrow" style="color:var(--bad)">06:28 · aanvaring</div>
+    <div class="big bad">GAME OVER</div>
+    <h2>De MV Schelde Trader ramt de gesloten val.</h2>
+    <p>De tijd was op. Het schip kon niet meer stoppen en voer tegen de Vaartdokbrug. Jullie losten ${n} van de 6 ruimtes op.</p>
+    <div class="fig"><div class="cap"><span>Bovenaanzicht · het schip nadert</span><span style="color:var(--bad)" id="crash-cap"></span></div><svg viewBox="0 0 1000 300" xmlns="http://www.w3.org/2000/svg" id="crash"></svg></div>
+    <div class="row"><button class="btn" id="again">Probeer opnieuw</button></div>
+  </section>`;
+  document.getElementById('again').addEventListener('click',()=>location.reload());
+  const svg=document.getElementById('crash'),panel=document.getElementById('go-panel');panel.classList.remove('shake');
+  const rays=`<g stroke="#f2a33a" stroke-width="4">${Array.from({length:8},(_,i)=>{const a=i*Math.PI/4;return `<line x1="${405+Math.cos(a)*20}" y1="${170+Math.sin(a)*20}" x2="${405+Math.cos(a)*45}" y2="${170+Math.sin(a)*45}"/>`;}).join('')}</g>`;
+  const end=()=>{svg.innerHTML=plan({shipY:176,crash:true})+rays;document.getElementById('crash-cap').textContent='aanvaring';void panel.offsetWidth;panel.classList.add('shake');};
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){end();return;}
+  const t0=performance.now(),dur=2600;
+  const step=now=>{const p=Math.min(1,(now-t0)/dur);svg.innerHTML=plan({shipY:330-p*(330-176)});if(p<1)requestAnimationFrame(step);else end();};
+  requestAnimationFrame(step);
+}
+
+intro();hud();
+</script>
+</body>
+</html>
