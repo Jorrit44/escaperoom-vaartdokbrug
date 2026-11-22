@@ -34,7 +34,7 @@ Tip: met **Spelleidermodus** op het startscherm loopt er geen klok en zijn alle 
 ## Nog te doen
 
 - [ ] Groepsnummer en namen invullen (`GROEP`) en in deze README
-- [ ] Taakverdeling invullen bij *Over dit spel → Gebruik van AI*
+- [ ] AI-verklaring opstellen (verplicht volgens de opdracht; staat momenteel niet in het spel)
 - [ ] Speltest door 2 à 3 medestudenten die het spel nog niet kennen, zonder AI; tijden noteren
 - [ ] Tussentijdse feedback: donderdag 26/11
 - [ ] Pitch van 5 minuten: donderdag 10/12
@@ -42,8 +42,8 @@ Tip: met **Spelleidermodus** op het startscherm loopt er geen klok en zijn alle 
 ## Versies
 
 - **v10:** eerste speelbare versie (30 minuten).
-- **v11:** feedback van de speltest en controle met de cursus verwerkt: cursustermen (geen "val" meer), 45 minuten, gratis cursustip per ruimte, afrondingsfout in ruimte 6, verantwoording van de vaste oplegging, tekenfouten, uitleg na afloop, vergrootbare tekeningen en een radar met het naderende schip. De volledige lijst staat in het spel onder *Over dit spel*.
+- **v11:** feedback van de speltest en controle met de cursus verwerkt: cursustermen (geen "val" meer), 45 minuten, gratis cursustip per ruimte, afrondingsfout in ruimte 6, verantwoording van de vaste oplegging, tekenfouten, uitleg na afloop, vergrootbare tekeningen en een radar met het naderende schip. De volledige lijst staat in de beschrijving van de v11-commit.
 
 ## Gebruik van AI
 
-De code, de tekeningen en een eerste versie van de puzzelteksten werden gemaakt met Claude (Anthropic). Elke formule, waarde en vakterm werd vergeleken met de cursus Bruggenbouw 2026-2027; de paginaverwijzingen staan per ruimte in het spel. Wat we na controle aanpasten, staat in het spel onder *Over dit spel*.
+De code, de tekeningen en een eerste versie van de puzzelteksten werden gemaakt met Claude (Anthropic). Elke formule, waarde en vakterm werd vergeleken met de cursus Bruggenbouw 2026-2027; de paginaverwijzingen staan per ruimte in het spel. Wat we na controle aanpasten, staat in de beschrijving van de v11-commit.

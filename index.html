@@ -571,7 +571,7 @@ function intro(){
           <label class="chk"><input type="checkbox" id="gm"> Spelleidermodus (geen klok, alle ruimtes open)</label></div>
         <div class="row hidden" id="demo"><button class="btn ghost" id="demo-lose">Voorbeeld: game over</button><button class="btn ghost" id="demo-win">Voorbeeld: gewonnen</button></div>
         <p class="small muted">In elke ruimte staat een stukje cursus dat je gratis mag lezen. Een extra hint kost 2 minuten, een fout antwoord 1 minuut. Elke opgeloste ruimte geeft een letter; samen vormen ze het wachtwoord om de brug te openen. Klik op een tekening om ze te vergroten.</p>
-        <p class="small"><a href="#over" data-about>Over dit spel: leerdoelen, bronnen en AI-gebruik →</a></p>
+        <p class="small"><a href="#over" data-about>Over dit spel: leerdoelen en bronnen →</a></p>
       </div>
       <div class="stack">
         <h3>De brug in cijfers</h3>
@@ -600,22 +600,6 @@ function about(){
     <ul class="plain">${ROOMS.map(r=>`<li><b>Ruimte ${r.id} · ${esc(r.naam)}:</b> ${esc(PUZ[r.id].kern)} <span class="muted">(${esc(r.hfst)})</span></li>`).join('')}</ul>
     <h3>Spelregels</h3>
     <p>Jullie hebben ${TOTAL/60} minuten. In elke ruimte staat gratis het stuk cursus dat je nodig hebt. Een extra hint kost 2 minuten, een fout antwoord 1 minuut; een leeg antwoord kost niets. Na afloop, gewonnen of verloren, toont het spel de uitleg van alle ruimtes. In spelleidermodus loopt er geen klok en zijn alle ruimtes open, handig om het spel te tonen of na te kijken.</p>
-    <h3>Gebruik van AI</h3>
-    <ul class="plain">
-      <li><b>Waar:</b> de code van het spel (HTML, CSS en JavaScript), de tekeningen en een eerste versie van de puzzelteksten werden gemaakt met Claude (Anthropic).</li>
-      <li><b>Hoe we kritisch bleven:</b> elke formule, waarde en vakterm werd vergeleken met de cursus Bruggenbouw 2026-2027; per ruimte staat de paginaverwijzing in het spel. Een groepslid speelde het spel twee keer uit; op basis daarvan werden de speeltijd en de hulp per ruimte aangepast.</li>
-      <li><b>Wat we na controle aanpasten (v10 → v11):</b>
-        <ul class="plain">
-          <li>De term "val" vervangen door "beweegbaar brugdek": de cursus gebruikt "val" niet, en de valbrug is daar een ander brugtype (XVIII §3.1).</li>
-          <li>Andere termen gelijkgetrokken met de cursus: draaischarnier, sluitend resulterend moment, pijler, parasitaire krachten, los oplegtoestel, translatie volgens.</li>
-          <li>Speeltijd van 30 naar 45 minuten: bij de speltest lukte het zonder fouten en zonder hints maar net binnen 30 minuten.</li>
-          <li>In elke ruimte staat nu gratis de relevante cursustheorie, met paginanummer.</li>
-          <li>Ruimte 6 aanvaardt nu 34 én 35 mm (21 + 13 mm werd eerder fout gerekend). Lege antwoorden kosten geen tijd meer.</li>
-          <li>De keuze voor de vaste oplegging op de pijler wordt nu verantwoord tegenover XXIV §6 en §7, waar de cursus een landhoofd verkiest.</li>
-          <li>Tekenfouten verbeterd: de ballastkist hangt onder de staartligger in de kelder, de vijzel beweegt mee bij het openen, overlappende labels zijn rechtgezet.</li>
-        </ul></li>
-      <li><b>Taakverdeling in de groep:</b> <span class="badge">nog aan te vullen</span></li>
-    </ul>
     <h3>Bronnen</h3>
     <ul class="plain"><li>Cursus Bruggenbouw 2026-2027, Prof. dr. ir. W. De Corte: hoofdstukken III (ontwerpbelastingen), XVIII (beweegbare bruggen), XXIV (brugopleggingen) en XXV (brugdekvoegen).</li><li>De Vaartdokbrug is fictief. De waarden zijn realistisch maar vereenvoudigd.</li></ul>
     <div class="row"><button class="btn" id="back">← Terug</button></div>
@@ -709,7 +693,7 @@ function finale(){
 
 function debrief(titel){
   return `<div class="stack"><h3>${titel}</h3>${ROOMS.map(r=>`<details class="hint"><summary>${S.solved[r.id]?'✓':'○'} Ruimte ${r.id} · ${esc(r.naam)} <span class="muted small">· ${esc(r.hfst)}</span></summary><p><b>${esc(PUZ[r.id].kern)}</b></p><p>${esc(PUZ[r.id].uitleg)}</p></details>`).join('')}
-    <p class="small"><a href="#over" data-about>Over dit spel: leerdoelen, bronnen en AI-gebruik →</a></p></div>`;
+    <p class="small"><a href="#over" data-about>Over dit spel: leerdoelen en bronnen →</a></p></div>`;
 }
 
 function animateOpen(el){
@@ -763,7 +747,7 @@ function gameOver(){
   requestAnimationFrame(step);
 }
 
-document.getElementById('foot').innerHTML=`Fictieve brug met realistische, vereenvoudigde waarden · ${VERSIE} · <a href="#over" data-about>Over dit spel en AI-gebruik</a>`;
+document.getElementById('foot').innerHTML=`Fictieve brug met realistische, vereenvoudigde waarden · ${VERSIE} · <a href="#over" data-about>Over dit spel</a>`;
 intro();hud();
 </script>
 </body>
