@@ -228,7 +228,43 @@ header{background:rgba(15,27,38,.93);-webkit-backdrop-filter:blur(8px);backdrop-
 .regels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .regels div{background:#122030;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:14px;line-height:1.35}
 .regels b{display:block;font-family:var(--mono);font-size:13px;color:var(--amber)}
-@media (prefers-reduced-motion:reduce){#app>*,.solved-card,.big-letter,.letters span.pop,.stop.now::before,.lamp{animation:none!important}}
+/* ===== v16: doorzoeken, sterren, finale en spanning ===== */
+.voorwerpen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.voorwerp{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;background:#122030;border:1px dashed #3d566d;border-radius:10px;padding:10px 6px;color:var(--ink);position:relative;transition:transform .12s,border-color .2s,background .2s}
+.voorwerp:hover{transform:translateY(-2px);border-color:var(--amber);background:#172a3d}
+.voorwerp.gevonden{border-style:solid;border-color:#2f6b4c;background:#11241b}
+.vw-icoon{font-size:28px;line-height:1}
+.vw-naam{font-size:13px;line-height:1.25}
+.vw-ok{position:absolute;top:4px;right:7px;color:var(--good);font-weight:700}
+.vw-kaart{background:linear-gradient(180deg,#1f2c3a,#142534);border:1px solid #3d566d;border-radius:14px;padding:22px;max-width:460px;width:100%;display:flex;flex-direction:column;gap:12px;align-items:flex-start;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:kaartIn .3s cubic-bezier(.2,.9,.3,1.2)}
+.vw-groot{font-size:52px;line-height:1}
+.vw-tekst{font-family:var(--mono);font-size:15px;line-height:1.6;background:#f3ead7;color:#2b2418;border-radius:6px;padding:12px 14px;max-width:none;box-shadow:inset 0 0 0 1px #d8c9a6}
+.data dl>div.onbekend dt{opacity:.6}
+.data dl>div.onbekend dd{color:var(--muted);font-weight:500;font-size:13px;font-style:italic}
+.st{display:block;font-size:12px;letter-spacing:.1em;color:var(--amber);margin-top:2px}
+details summary .st{display:inline}
+.sterren{font-size:22px;letter-spacing:.12em;color:var(--amber);text-shadow:0 0 12px rgba(242,163,58,.45)}
+.sterren.groot{font-family:var(--mono);font-size:26px;letter-spacing:.04em}
+.rang{border:1px solid #6b5426;background:linear-gradient(180deg,#2a2412,#1a2230);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.rang-titel{font-family:var(--display);font-weight:900;font-size:clamp(24px,4vw,34px);color:var(--amber)}
+.badge-rec{display:inline-block;align-self:flex-start;background:var(--amber);color:#1b1205;font-weight:700;border-radius:999px;padding:4px 12px;font-size:14px}
+.prestaties{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.prestatie{display:flex;gap:10px;align-items:center;background:#122030;border:1px solid #2f6b4c;border-radius:10px;padding:8px 10px}
+.prestatie>span{font-size:24px}
+.prestatie b{display:block;font-size:14px}
+.prestatie small{color:var(--muted);font-size:12px}
+.paneel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;background:#0a131b;border:1px solid var(--line);border-radius:12px;padding:16px}
+.pknop{display:flex;flex-direction:column;align-items:center;gap:6px;background:linear-gradient(180deg,#24384c,#1a2a3a);color:var(--ink);border:1px solid #3d566d;border-radius:12px;padding:16px 8px;font-weight:600;box-shadow:0 4px 0 #0c1620;transition:transform .08s,box-shadow .08s}
+.pknop:active{transform:translateY(3px);box-shadow:0 1px 0 #0c1620}
+.pknop .pi{font-size:28px}
+.plamp{width:14px;height:14px;border-radius:50%;background:#3a1f1c;box-shadow:inset 0 0 4px rgba(0,0,0,.6)}
+.pknop.aan{border-color:#2f6b4c}
+.pknop.aan .plamp{background:var(--good);box-shadow:0 0 12px rgba(76,195,138,.9)}
+@media (max-width:520px){.voorwerpen,.paneel{grid-template-columns:1fr}.voorwerp{flex-direction:row;justify-content:flex-start;text-align:left;padding:8px 10px}.pknop{flex-direction:row;justify-content:flex-start}}
+body.krap::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:25;box-shadow:inset 0 0 140px rgba(239,107,91,.38);animation:puls 1.3s ease-in-out infinite}
+body.krap #clock{animation:puls 1s ease-in-out infinite}
+@keyframes puls{50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){#app>*,.solved-card,.big-letter,.letters span.pop,.stop.now::before,.lamp,.vw-kaart,body.krap::after,body.krap #clock{animation:none!important}}
 footer{font-size:13px;color:var(--muted)}
 .hidden{display:none!important}
 .shake{animation:shake .5s 3}
@@ -256,7 +292,7 @@ footer{font-size:13px;color:var(--muted)}
 /* =====================================================================
    INSTELLINGEN — hier pas je het spel aan
    ===================================================================== */
-const VERSIE='v15';
+const VERSIE='v16';
 const GROEP={nr:'XX',leden:[]};      // TODO groep: vul het groepsnummer en de namen in, bv. {nr:'07',leden:['Naam 1','Naam 2','Naam 3','Naam 4']}
 const TOTAL=45*60;                     // speeltijd in seconden (v10: 30 min, na speltest verhoogd)
 const START_KLOK=5*3600+58*60;         // verhaalklok bij de start: 05:58
@@ -305,6 +341,7 @@ const S={start:null,penalty:0,running:false,solved:{},hints:0,fouten:0,current:1
   letters:null,hintsUsed:{},radio:{},scherm:'room',r2n:0,r2ang:0,r2test:null,
   r3T:0,r3view:'jack',r3ang:0,r3msg:null,          /* ruimte 3: vijzelkracht en proefopening */
   r4:{B:'',C:'',D:''},r4uitz:0,r4res:null,          /* ruimte 4: gekozen opleggingen en temperatuurtest */
+  gevonden:{},foutenPer:{},                          /* doorzochte voorwerpen en fouten per ruimte (voor de sterren) */
   r5:{a:'',b:''},r5x:null,r5rem:0,r5som:null,r5ok:false, /* ruimte 5: twee delen van de formule en de remmende vrachtwagen */
   r6:{mm:'',type:''},r6m:null,r6T:null,r6res:null}; /* ruimte 6: invoer, beweging en temperatuur tijdens de test */
 /* Letters van BALANS in willekeurige volgorde over de ruimtes, nooit al in de juiste volgorde */
@@ -313,7 +350,7 @@ S.letters=schud();
 const letterVan=id=>S.letters[id-1];
 
 /* Voortgang bewaren in de browser, zodat vernieuwen de pagina het spel niet wist */
-const BEWAAR=['start','penalty','running','solved','hints','fouten','current','ended','gm','letters','hintsUsed','radio','scherm','r2n','r2test','r3T','r4','r5','r6'];
+const BEWAAR=['start','penalty','running','solved','hints','fouten','current','ended','gm','letters','hintsUsed','radio','scherm','r2n','r2test','r3T','r4','r5','r6','gevonden','foutenPer'];
 function bewaar(){try{const d={};BEWAAR.forEach(k=>d[k]=S[k]);localStorage.setItem(OPSLAG,JSON.stringify(d));}catch(e){}}
 function laad(){try{const d=JSON.parse(localStorage.getItem(OPSLAG)||'null');return d&&Array.isArray(d.letters)?d:null;}catch(e){return null;}}
 function wis(){try{localStorage.removeItem(OPSLAG);}catch(e){}}
@@ -333,7 +370,10 @@ const geluid=(()=>{
     radio(){ruis(0.35,0.1);},
     fout(){toon(140,0.3,'square',0.07,0,900);},
     goed(){toon(660,0.18,'sine',0.11);toon(880,0.32,'sine',0.11,0.15);},
-    open(){toon(523,0.22,'sine',0.11);toon(659,0.22,'sine',0.11,0.18);toon(784,0.5,'sine',0.11,0.36);}
+    open(){toon(523,0.22,'sine',0.11);toon(659,0.22,'sine',0.11,0.18);toon(784,0.5,'sine',0.11,0.36);},
+    vondst(){toon(880,0.12,'triangle',0.09);toon(1320,0.2,'triangle',0.07,0.09);},
+    klik(){toon(620,0.07,'square',0.05);},
+    tik(){toon(1500,0.035,'square',0.025);}
   };
 })();
 function toonGeluidsknop(){document.getElementById('snd-ico').textContent=geluid.aan?'🔊':'🔇';document.getElementById('snd').setAttribute('aria-pressed',String(!geluid.aan));}
@@ -368,11 +408,22 @@ function hud(){
   const lh=ROOMS.map(r=>`<span class="${S.solved[r.id]?'vol':''}${r.id===S.nieuw?' pop':''}">${S.solved[r.id]?letterVan(r.id):''}</span>`).join('');
   const le=document.getElementById('letters');if(le.dataset.h!==lh){le.innerHTML=lh;le.dataset.h=lh;}   /* enkel hertekenen bij een nieuwe letter */
   radar();
+  /* spanning: onder 5 minuten pulseert de rand rood, in de laatste minuut tikt de klok */
+  const krap=S.running&&!S.gm&&!S.ended&&l<300&&l>0;
+  document.body.classList.toggle('krap',krap);
+  if(krap&&l<60){const sec=Math.ceil(l);if(sec!==S.laatsteTik){S.laatsteTik=sec;geluid.tik();}}
   if(S.running&&!S.gm&&!S.ended){if(l<=0)gameOver();else radioCheck(l);}
 }
 function startClock(){if(S.running)return;S.start=Date.now();S.running=true;tick=setInterval(hud,500);bewaar();hud();}
 function penalty(s){if(!S.gm)S.penalty+=s;bewaar();hud();}
 function esc(t){return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* Doorzoeken: een gegeven (rij uit het dossier) is pas zichtbaar als een voorwerp het onthuld heeft */
+function gevonden(id,rij){
+  const P=PUZ[id];if(S.gm||S.solved[id]||!P||!P.voorwerpen)return true;
+  const lijst=S.gevonden[id]||[];return P.voorwerpen.some(v=>lijst.includes(v.id)&&v.rijen.includes(rij));
+}
+function waarde(id,rij,tekst,leeg){return gevonden(id,rij)?tekst:(leeg||'?');}
 
 /* Tekening in een kader; klikken vergroot ze */
 function figBox(links,rechts,svg,id){
@@ -529,10 +580,10 @@ function ballastSVG(){
   </g>
   <circle cx="${HX}" cy="190" r="8" fill="#0d1822" stroke="#f2a33a" stroke-width="3"/>
   ${rust?`<text x="${HX+8}" y="172" ${MONO} font-size="12" fill="#f2a33a">draaischarnier</text>
-  ${ar(x(13.5),['G₁ = 1 500 kN','stalen brugdek'],'end')}${ar(x(15),['G₂ = 230 kN','slijtlaag'],'start')}${ar(g3,['G₃ = 120 kN','uitrusting'],'start')}
+  ${ar(x(13.5),[waarde(2,0,'G₁ = 1 500 kN','G₁ = ?'),'stalen brugdek'],'end')}${ar(x(15),[waarde(2,1,'G₂ = 230 kN','G₂ = ?'),'slijtlaag'],'start')}${ar(g3,[waarde(2,2,'G₃ = 120 kN','G₃ = ?'),'uitrusting'],'start')}
   <line x1="${x(15.5)}" y1="178" x2="${g3}" y2="178" stroke="#f2a33a" stroke-dasharray="4 4"/><circle cx="${x(15.5)}" cy="178" r="4" fill="#f2a33a"/>
-  ${dim(HX,x(13.5),236,'13,5 m')}${dim(HX,x(15),262,'15,0 m')}${dim(HX,x(15.5),288,'15,5 m')}`:`<text x="400" y="60" ${MONO} font-size="14" font-weight="600" fill="#ef6b5b">⚠ het brugdek komt vanzelf omhoog</text>`}
-  ${dim(x(-6.5),HX,288,'b = 6,5 m')}
+  ${dim(HX,x(13.5),236,waarde(2,3,'13,5 m'))}${dim(HX,x(15),262,waarde(2,4,'15,0 m'))}${dim(HX,x(15.5),288,waarde(2,5,'15,5 m'))}`:`<text x="400" y="60" ${MONO} font-size="14" font-weight="600" fill="#ef6b5b">⚠ het brugdek komt vanzelf omhoog</text>`}
+  ${dim(x(-6.5),HX,288,waarde(2,6,'b = 6,5 m','b = ?'))}
   ${reactie}
   </svg>`;
 }
@@ -577,10 +628,10 @@ function jackSVG(){
   <circle cx="${H[0]}" cy="${H[1]}" r="8" fill="#0d1822" stroke="#f2a33a" stroke-width="3"/>
   <line x1="${H[0]-t}" y1="190" x2="${H[0]-t}" y2="222" stroke="#93a4b3" stroke-dasharray="4 4"/><line x1="${H[0]}" y1="190" x2="${H[0]}" y2="222" stroke="#93a4b3" stroke-dasharray="4 4"/>
   <line x1="${H[0]-t+3}" y1="216" x2="${H[0]-3}" y2="216" stroke="#f2a33a" stroke-width="2" marker-end="url(#ah-f2a33a)" marker-start="url(#ah-f2a33a)"/>
-  <text x="${H[0]-t+12}" y="244" ${MONO} font-size="15" font-weight="600" fill="#f2a33a">t = 3,0 m</text>
+  <text x="${H[0]-t+12}" y="244" ${MONO} font-size="15" font-weight="600" fill="#f2a33a">${waarde(3,2,'t = 3,0 m','t = ?')}</text>
   <text x="${H[0]+12}" y="208" ${MONO} font-size="12" fill="#f2a33a">draaischarnier</text>
   ${arc(80,100,55,1,'#f2a33a')}<text x="380" y="72" ${MONO} font-size="13" fill="#f2a33a" text-anchor="end">sluitend resulterend</text><text x="380" y="90" ${MONO} font-size="13" fill="#f2a33a" text-anchor="end">moment (uit de kelder)</text>
-  ${arc(135,80,35,1,'#7fb0ff')}<text x="530" y="70" ${MONO} font-size="13" fill="#7fb0ff">windmoment open brugdek:</text><text x="530" y="88" ${MONO} font-size="13" fill="#7fb0ff">1 290 kNm (sluitend)</text>
+  ${arc(135,80,35,1,'#7fb0ff')}<text x="530" y="70" ${MONO} font-size="13" fill="#7fb0ff">windmoment open brugdek:</text><text x="530" y="88" ${MONO} font-size="13" fill="#7fb0ff">${waarde(3,1,'1 290 kNm (sluitend)','? kNm (sluitend)')}</text>
   ${arc(80,150,195,0,'#4cc38a')}<text x="300" y="140" ${MONO} font-size="13" fill="#4cc38a" text-anchor="end">T · t (opent)</text>
   <text x="805" y="330" ${MONO} font-size="13" fill="#c9d4dd" text-anchor="end">beweegbaar brugdek (gesloten getekend)</text>
   </svg>`;
@@ -626,22 +677,22 @@ function bearingSVG(){
 function laneSVG(){
   const mk=c=>`<marker id="al-${c.slice(1)}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="${c}"/></marker>`;
   const x0=200,pm=600/11;let cx=x0;
-  const strips=[['fietspad',2.5,'#22384c','2,5 m'],['rijstrook 1',3,'#5a4a2a','w₁ = 3,0 m'],['rijstrook 2',3,'#2a3a48','3,0 m'],['fietspad',2.5,'#22384c','2,5 m']].map(([n,w,c,l])=>{const x=cx;cx+=w*pm;return `<rect x="${x}" y="318" width="${w*pm}" height="34" fill="${c}" stroke="#9fb3c6"/><text x="${x+w*pm/2}" y="340" ${MONO} font-size="12" fill="${n==='rijstrook 1'?'#f2a33a':'#c9d4dd'}" text-anchor="middle">${n}</text><text x="${x+w*pm/2}" y="372" ${MONO} font-size="12" fill="#93a4b3" text-anchor="middle">${l}</text>`;}).join('');
+  const strips=[['fietspad',2.5,'#22384c','2,5 m'],['rijstrook 1',3,'#5a4a2a',waarde(5,2,'w₁ = 3,0 m','w₁ = ?')],['rijstrook 2',3,'#2a3a48',waarde(5,2,'3,0 m')],['fietspad',2.5,'#22384c','2,5 m']].map(([n,w,c,l])=>{const x=cx;cx+=w*pm;return `<rect x="${x}" y="318" width="${w*pm}" height="34" fill="${c}" stroke="#9fb3c6"/><text x="${x+w*pm/2}" y="340" ${MONO} font-size="12" fill="${n==='rijstrook 1'?'#f2a33a':'#c9d4dd'}" text-anchor="middle">${n}</text><text x="${x+w*pm/2}" y="372" ${MONO} font-size="12" fill="#93a4b3" text-anchor="middle">${l}</text>`;}).join('');
   return `<svg viewBox="0 0 1000 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Zijaanzicht van de vaste overspanning met belastingsmodel 1 en remkracht, en dwarsdoorsnede met rijstroken">
   <defs>${mk('#f2a33a')}${mk('#ef6b5b')}${mk('#93a4b3')}${mk('#4cc38a')}</defs>
   <rect width="1000" height="400" fill="#0d1822"/>
   <text x="20" y="28" ${MONO} font-size="12" fill="#93a4b3">ZIJAANZICHT</text>
   ${S.r5x==null?`${Array.from({length:19},(_,i)=>`<line x1="${140+i*40}" y1="92" x2="${140+i*40}" y2="140" stroke="#f2a33a" stroke-width="1.4" marker-end="url(#al-f2a33a)"/>`).join('')}
   <line x1="130" y1="92" x2="870" y2="92" stroke="#f2a33a" stroke-width="1.4"/>
-  <text x="640" y="84" ${MONO} font-size="13" fill="#f2a33a">q₁k = 9 kN/m² op rijstrook 1</text>
+  <text x="640" y="84" ${MONO} font-size="13" fill="#f2a33a">${waarde(5,1,'q₁k = 9 kN/m²','q₁k = ?')} op rijstrook 1</text>
   <line x1="470" y1="40" x2="470" y2="140" stroke="#f2a33a" stroke-width="4" marker-end="url(#al-f2a33a)"/><line x1="520" y1="40" x2="520" y2="140" stroke="#f2a33a" stroke-width="4" marker-end="url(#al-f2a33a)"/>
-  <text x="455" y="50" ${MONO} font-size="13" fill="#f2a33a" text-anchor="end">tandem: Q₁k = 300 kN per as</text>`:vrachtwagen(S.r5x)}
+  <text x="455" y="50" ${MONO} font-size="13" fill="#f2a33a" text-anchor="end">tandem: ${waarde(5,0,'Q₁k = 300 kN','Q₁k = ?')} per as</text>`:vrachtwagen(S.r5x)}
   <rect x="120" y="146" width="760" height="22" fill="#9fb3c6" stroke="#0a131b"/>
   <polygon points="120,168 106,192 134,192" fill="#3a4b5b" stroke="#f2a33a"/><line x1="100" y1="196" x2="140" y2="196" stroke="#f2a33a"/>
   <circle cx="880" cy="180" r="11" fill="#3a4b5b" stroke="#c9d4dd"/><line x1="862" y1="194" x2="898" y2="194" stroke="#c9d4dd"/>
   <text x="120" y="214" ${MONO} font-size="12" fill="#f2a33a" text-anchor="middle">A en B (pijler)</text><text x="880" y="214" ${MONO} font-size="12" fill="#c9d4dd" text-anchor="middle">C en D</text>
   ${remPijl()}
-  <line x1="120" y1="240" x2="880" y2="240" stroke="#93a4b3" marker-end="url(#al-93a4b3)" marker-start="url(#al-93a4b3)"/><text x="500" y="234" ${MONO} font-size="13" fill="#c9d4dd" text-anchor="middle">L = 40 m</text>
+  <line x1="120" y1="240" x2="880" y2="240" stroke="#93a4b3" marker-end="url(#al-93a4b3)" marker-start="url(#al-93a4b3)"/><text x="500" y="234" ${MONO} font-size="13" fill="#c9d4dd" text-anchor="middle">${waarde(5,3,'L = 40 m','L = ?')}</text>
   <text x="20" y="300" ${MONO} font-size="12" fill="#93a4b3">DWARSDOORSNEDE (11 m)</text>
   ${strips}
   </svg>`;
@@ -691,7 +742,7 @@ function jointSVG(){
   return `<svg viewBox="0 0 1000 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Doorsnede van de brugdekvoeg tussen brugdek en noordlandhoofd">
   <rect width="1000" height="340" fill="#0d1822"/>
   <g transform="translate(${dx} 0)"><rect x="60" y="120" width="420" height="40" fill="#9fb3c6" stroke="#0a131b"/><rect x="60" y="160" width="420" height="60" fill="#7d93a8" stroke="#0a131b"/>
-  <text x="70" y="200" ${MONO} font-size="13" fill="#0a131b">40 m vanaf vaste oplegging A</text></g>
+  <text x="70" y="200" ${MONO} font-size="13" fill="#0a131b">${waarde(6,0,'40 m','? m')} vanaf vaste oplegging A</text></g>
   <rect x="540" y="120" width="400" height="220" fill="#3a4b5b"/><rect x="540" y="120" width="400" height="16" fill="#7d93a8"/>
   <rect x="470" y="220" width="40" height="12" fill="#f2a33a"/><text x="490" y="252" ${MONO} font-size="12" fill="#f2a33a" text-anchor="middle">oplegging C/D</text>
   ${voeg}
@@ -780,6 +831,11 @@ const PUZ={
   tekst:'Bij de laatste herstelling werd de ballastkist leeggemaakt. Naast de kist liggen betonblokken van 50 kN. Leg het juiste aantal blokken in de kist en test de balans: het brugdek moet uitgebalanceerd zijn zoals de cursus het voorschrijft voor een basculebrug. Elke mislukte test kost 1 minuut.',
   fig:()=>ballastSVG(),
   naDuur:900,
+  voorwerpen:[
+    {id:'logboek',icoon:'📒',naam:'Logboek van de brugwachter',rijen:[0,1,2],tekst:'12 maart: nieuwe slijtlaag gelegd, 230 kN. 3 april: leuningen, verlichting en slagboom vervangen, samen 120 kN. Volgens de fabrikant weegt het stalen brugdek zelf 1 500 kN.'},
+    {id:'plan',icoon:'📐',naam:'Bouwplan aan de muur',rijen:[3,4,5],tekst:'Zwaartepunten gemeten vanaf het draaischarnier: stalen brugdek op 13,5 m, slijtlaag op 15,0 m, uitrusting op 15,5 m.'},
+    {id:'plaatje',icoon:'🏷️',naam:'Plaatje op de ballastkist',rijen:[6,7],tekst:'Zwaartepunt van de ballastkist: 6,5 m achter het draaischarnier. Eigengewicht van staartligger en lege kist: verwaarloosbaar.'}
+  ],
   dossier:[['Eigengewicht stalen brugdek G₁','1 500 kN'],['Slijtlaag G₂','230 kN'],['Leuningen, verlichting, slagboom G₃','120 kN'],['Arm G₁ tot draaischarnier','13,5 m'],['Arm G₂','15,0 m'],['Arm G₃','15,5 m'],['Arm ballastkist b','6,5 m'],['Staartligger en lege kist','verwaarloosd']],
   form:()=>`<div class="teller" role="group" aria-label="Blokken in de ballastkist">
       <button class="btn ghost" type="button" data-d="-10" aria-label="10 blokken eruit">−10</button><button class="btn ghost" type="button" data-d="-1" aria-label="1 blok eruit">−1</button>
@@ -821,6 +877,11 @@ const PUZ={
   tekst:'De ballast is in orde. Nu moet de druk van de twee hydraulische vijzels ingesteld worden. Bereken de kracht die één vijzel moet kunnen leveren om het brugdek te openen tegen de wind in, stel ze in en doe een proefopening. Te weinig kracht en het brugdek blijft steken; te veel en het zwaait met een schok open.',
   naDuur:3000,
   fig:()=>S.r3view==='proef'?elevation({open:S.r3ang,hl:3,hoog:true,wind:true,zonderNummers:true,melding:S.r3msg&&S.r3msg.t,kleur:S.r3msg&&S.r3msg.k}):jackSVG(),
+  voorwerpen:[
+    {id:'voorschrift',icoon:'🌬️',naam:'Bedieningsvoorschrift',rijen:[1],tekst:'Openen toegestaan tot de bedieningswind. Windmoment op het open brugdek bij die wind: 1 290 kNm, in sluitende zin.'},
+    {id:'typeplaat',icoon:'🏷️',naam:'Typeplaatje van de vijzel',rijen:[2,3,4],tekst:'Hydraulische vijzel, één per hoofdligger: 2 stuks. Aangrijpingspunt op t = 3,0 m van het draaischarnier. Wrijving in het scharnier: verwaarloosbaar.'},
+    {id:'notitie',icoon:'📝',naam:'Notitie op het bureau',rijen:[0,5],tekst:'"Niet vergeten: het sluitend moment uit de kelder komt bij het windmoment. Tel beide volledig mee, dan zit je aan de veilige kant." (onderhoudsploeg)'}
+  ],
   dossier:[['Sluitend resulterend moment (uit de kelder)','zelf invullen'],['Windmoment op het open brugdek (bedieningswind)','1 290 kNm'],['Arm vijzel tot draaischarnier t','3,0 m'],['Aantal vijzels (één per hoofdligger)','2'],['Wrijving in het draaischarnier','verwaarloosd'],['Aanname','beide momenten tellen volledig mee']],
   form:()=>`<label for="druk" class="small muted">Kracht per vijzel (schuif of typ)</label>
     <input type="range" id="druk" class="schuif" min="0" max="600" step="5" value="${S.r3T||0}" aria-label="Kracht per vijzel in kN">
@@ -860,6 +921,11 @@ const PUZ={
   tekst:'Voor het beweegbare brugdek open mag, moet de vaste overspanning aan de noordkant veilig staan. Bij onderhoud werden de geleidingen van drie oplegtoestellen verwijderd. Oplegging A is volledig vast. Kies voor B, C en D welke beweging ze moeten verhinderen: klik in de tekening op een oplegging of kies hieronder. Test daarna wat er gebeurt op een warme zomerdag.',
   fig:()=>bearingSVG(),
   naDuur:1000,
+  voorwerpen:[
+    {id:'werkbon',icoon:'📋',naam:'Werkbon van het onderhoud',rijen:[0],tekst:'Geleidingen van de opleggingen B, C en D verwijderd voor inspectie. Oplegging A (pijler, west) is volledig vast blijven staan.'},
+    {id:'plan',icoon:'📐',naam:'Plan van de vaste overspanning',rijen:[1],tekst:'Vaste overspanning: 40 m, stalen dek, van de pijler tot het noordlandhoofd.'},
+    {id:'nota',icoon:'📘',naam:'Ontwerpnota',rijen:[2],tekst:'Het oplegschema moet de overspanning vrij laten uitzetten zonder parasitaire krachten, maar ze wel plaatsvast houden.'}
+  ],
   dossier:[['A (pijler, west)','volledig vast'],['Overspanning','40 m, stalen dek'],['Doel','vrij uitzetten zonder parasitaire krachten, maar plaatsvast']],
   form:()=>`<div class="opl-grid">${['B','C','D'].map(k=>`<label for="b-${k}">Oplegging ${k}</label><select id="b-${k}"><option value="">kies…</option>${[['vast','volledig vast'],['langsvast','enkel vast in langse richting (beweegt dwars, y)'],['dwarsvast','enkel vast in dwarse richting (beweegt langs, x)'],['los','los (beweegt in alle richtingen)']].map(([v,t])=>`<option value="${v}"${S.r4&&S.r4[k]===v?' selected':''}>${t}</option>`).join('')}</select>`).join('')}</div>
     <button class="btn" id="try">Test bij +54 °C</button>`,
@@ -889,6 +955,11 @@ const PUZ={
   tekst:'Het monitoringsysteem van de vaste overspanning vraagt de karakteristieke remkracht waarop de vaste opleggingen A en B en de pijler gecontroleerd worden. Reken beide delen van de formule uit hoofdstuk III uit, controleer de grenzen op de meter en laat een vrachtwagen remmen.',
   fig:()=>laneSVG(),
   naDuur:2400,
+  voorwerpen:[
+    {id:'bestek',icoon:'📘',naam:'Bestek van de brug',rijen:[0,1,4],tekst:'Belastingsmodel 1, rijstrook 1: tandem met aslast Q₁k = 300 kN en verdeelde last q₁k = 9 kN/m². Nieuwe brug: aanpassingsfactoren 1,0.'},
+    {id:'opmeting',icoon:'📏',naam:'Opmeting van het brugdek',rijen:[2,3],tekst:'Rijstrook 1 is 3,0 m breed. Lengte van het brugdek: 40 m.'},
+    {id:'camera',icoon:'📹',naam:'Beeld van de verkeerscamera',rijen:[],tekst:'Een vrachtwagen remt elke ochtend hard voor de slagboom. De monitoring moet weten welke remkracht de pijler dan krijgt.'}
+  ],
   dossier:[['Tandemaslast rijstrook 1, Q₁k (per as)','300 kN'],['Verdeelde last rijstrook 1, q₁k','9 kN/m²'],['Breedte rijstrook 1, w₁','3,0 m'],['Lengte brugdek L','40 m'],['Aanpassingsfactoren α','1,0 (nieuwe brug)']],
   form:()=>`<div class="opl-grid">
       <label for="q1">Tandemdeel</label><div class="lock"><input id="q1" inputmode="decimal" maxlength="7" placeholder="kN" value="${esc(S.r5&&S.r5.a||'')}" aria-label="Tandemdeel 1,2 maal Q1k in kN"><span class="eenheid">kN · 1,2·Q₁k</span></div>
@@ -922,6 +993,11 @@ const PUZ={
   tekst:'De oude brugdekvoeg aan het noordlandhoofd is te klein en klemt de brug vast. Bereken de totale lengteverandering die de voeg moet opnemen (afgerond op 1 mm), kies een geschikt voegtype en test de voeg van een winternacht tot een zomerdag. De meter toont wat elk voegtype kan opnemen.',
   fig:()=>jointSVG(),
   naDuur:3500,
+  voorwerpen:[
+    {id:'weerstation',icoon:'🌡️',naam:'Weerstation op het landhoofd',rijen:[3,4],tekst:'Brugtemperatuur van een stalen dek in Gent: minimaal −18 °C op een winternacht, maximaal +54 °C op een zomerdag in de zon.'},
+    {id:'staalfiche',icoon:'📘',naam:'Technische fiche van het staal',rijen:[1],tekst:'Lineaire uitzettingscoëfficiënt van constructiestaal: α = 12·10⁻⁶ per °C.'},
+    {id:'plan',icoon:'📐',naam:'Plan van het landhoofd',rijen:[0,2],tekst:'Afstand van de vaste oplegging A tot de voeg: 40 m. De voeg werd geplaatst bij de basisreferentietemperatuur T₀ = 10 °C.'}
+  ],
   dossier:[['Afstand vaste oplegging A tot voeg','40 m'],['Uitzettingscoëfficiënt staal α','12·10⁻⁶ /°C'],['Basisreferentietemperatuur T₀','10 °C'],['Min. brugtemperatuur stalen dek (Gent)','−18 °C'],['Max. brugtemperatuur stalen dek (Gent)','+54 °C']],
   form:()=>`<div class="opl-grid"><label for="code">ΔL totaal</label><div class="lock"><input id="code" inputmode="decimal" maxlength="6" placeholder="mm" value="${esc(S.r6&&S.r6.mm||'')}" aria-label="Totale lengteverandering in mm"><span class="eenheid">mm</span></div>
     <label for="vtype">Voegtype</label>
@@ -987,6 +1063,8 @@ function intro(){
           <div><b>💡 Extra hint</b>Kost 2 minuten</div>
           <div><b>✗ Fout antwoord</b>Kost 1 minuut</div>
           <div><b>🔤 Letters</b>Elke ruimte geeft een letter van het wachtwoord</div>
+          <div><b>🔍 Doorzoeken</b>De gegevens liggen verspreid in elke ruimte</div>
+          <div><b>★ Sterren</b>Drie per ruimte zonder hints en fouten</div>
         </div>
         <p class="small muted">Klik op een tekening om ze te vergroten. Zet het geluid aan voor de radioberichten van het schip. Jullie voortgang wordt in deze browser bewaard. <a href="#over" data-about>Over dit spel</a></p>
       </div>
@@ -1023,7 +1101,7 @@ function about(){
     <p>Wie het spel uitspeelt, past zes onderdelen van de cursus toe op één fictieve, realistische brug: een basculebrug met kelder, gevolgd door een vaste stalen overspanning.</p>
     <ul class="plain">${ROOMS.map(r=>`<li><b>Ruimte ${r.id} · ${esc(r.naam)}:</b> ${esc(PUZ[r.id].kern)} <span class="muted">(${esc(r.hfst)})</span></li>`).join('')}</ul>
     <h3>Spelregels</h3>
-    <p>Jullie hebben ${TOTAL/60} minuten. In elke ruimte staat gratis het stuk cursus dat je nodig hebt. Een extra hint kost 2 minuten, een fout antwoord 1 minuut; een leeg antwoord kost niets. Na afloop, gewonnen of verloren, toont het spel de uitleg van alle ruimtes. In spelleidermodus loopt er geen klok en zijn alle ruimtes open, handig om het spel te tonen of na te kijken.</p>
+    <p>Jullie hebben ${TOTAL/60} minuten. In elke ruimte staat gratis het stuk cursus dat je nodig hebt. Een extra hint kost 2 minuten, een fout antwoord 1 minuut; een leeg antwoord kost niets. De gegevens die je nodig hebt, vind je door de voorwerpen in elke ruimte te bekijken. Elke ruimte levert tot drie sterren op (zonder hints en fouten); na het wachtwoord volgt nog de openingsprocedure aan het bedieningspaneel. Na afloop, gewonnen of verloren, toont het spel de uitleg van alle ruimtes. In spelleidermodus loopt er geen klok en zijn alle ruimtes open, handig om het spel te tonen of na te kijken.</p>
     <h3>Bronnen</h3>
     <ul class="plain"><li>Cursus Bruggenbouw 2026-2027, Prof. dr. ir. W. De Corte: hoofdstukken III (ontwerpbelastingen), XVIII (beweegbare bruggen), XXIV (brugopleggingen) en XXV (brugdekvoegen).</li><li>De Vaartdokbrug is fictief. De waarden zijn realistisch maar vereenvoudigd.</li></ul>
     <div class="row"><button class="btn" id="back">← Terug</button></div>
@@ -1036,8 +1114,11 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-about]')){e.pre
 function routeBar(){
   return `<div class="route">${ROOMS.map(r=>{
     const acc=S.gm||S.solved[r.id]||r.id===nextRoom();
-    return `<button class="stop ${S.solved[r.id]?'done':''} ${r.id===S.current?'now':''}" data-go="${r.id}" ${acc?'':'disabled'}><span class="nr">${r.id} · ${esc(r.plaats)}</span><b>${esc(r.naam)}</b></button>`;}).join('')}</div>`;
+    return `<button class="stop ${S.solved[r.id]?'done':''} ${r.id===S.current?'now':''}" data-go="${r.id}" ${acc?'':'disabled'}><span class="nr">${r.id} · ${esc(r.plaats)}</span><b>${esc(r.naam)}</b>${S.solved[r.id]&&!S.gm?`<span class="st" aria-label="${sterrenVoor(r.id)} van 3 sterren">${sterTekst(sterrenVoor(r.id))}</span>`:''}</button>`;}).join('')}</div>`;
 }
+/* Sterren per ruimte: 3 zonder hints en fouten, 2 bij één of twee, anders 1 */
+function sterrenVoor(id){const h=Object.keys(S.hintsUsed).filter(k=>k.startsWith(id+'-')).length,f=(S.foutenPer||{})[id]||0,n=h+f;return n===0?3:n<=2?2:1;}
+const sterTekst=n=>'★'.repeat(n)+'☆'.repeat(3-n);
 const nextRoom=()=>{for(const r of ROOMS)if(!S.solved[r.id])return r.id;return 7;};
 
 function room(id){
@@ -1058,12 +1139,14 @@ function room(id){
       <h2>${esc(P.titel)}</h2>
       <p>${esc(P.tekst)}</p>
       <details class="hint theory" open><summary>📘 Uit de cursus (gratis)</summary><p>${esc(P.cursus)}</p></details>
-      ${P.dossier?`<div class="data"><div class="data-kop">Uit het dossier</div><dl>${P.dossier.map(d=>`<div><dt>${d[0]}</dt><dd>${d[1]}</dd></div>`).join('')}</dl></div>`:''}
+      ${P.voorwerpen?`<div class="zoek" id="zoek">${zoekHTML(id)}</div>`:''}
+      ${P.dossier?`<div class="data" id="dossier">${dossierHTML(id)}</div>`:''}
       <div class="stack ${done?'hidden':''}" id="hints">${P.hints.map((h,i)=>hintHTML(`${id}-${i}`,`Hint ${i+1} (−2 min)`,h)).join('')}</div>
     </section></div></div>`;
   kleefCheck();
   app.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>room(+b.dataset.go)));
   document.getElementById('kaart').addEventListener('click',e=>{e.stopPropagation();toonKaart(id);});
+  koppelZoeken(id);
   koppelHints();
   const tr=document.getElementById('try');
   if(tr){tr.addEventListener('click',()=>attempt(id));app.querySelectorAll('#form input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')attempt(id);}));}
@@ -1076,6 +1159,40 @@ function room(id){
 /* Hints: een betaalde hint blijft open en wordt niet opnieuw aangerekend, ook niet na vernieuwen */
 function hintHTML(sleutel,titel,tekst){const u=S.hintsUsed[sleutel];return `<details class="hint" data-straf="${sleutel}"${u?' open data-used="1"':''}><summary>${titel}</summary><p>${esc(tekst)}</p></details>`;}
 function koppelHints(){app.querySelectorAll('details[data-straf]').forEach(d=>d.addEventListener('toggle',()=>{if(d.open&&!d.dataset.used){d.dataset.used='1';S.hintsUsed[d.dataset.straf]=true;S.hints++;penalty(HINT_STRAF);}}));}
+
+/* Doorzoek de ruimte: voorwerpen als knoppen; een gevonden voorwerp krijgt een vinkje */
+function zoekHTML(id){
+  const P=PUZ[id],lijst=S.gevonden[id]||[],alle=S.gm||S.solved[id];
+  const n=P.voorwerpen.filter(v=>lijst.includes(v.id)).length;
+  return `<div class="data-kop">🔍 Doorzoek de ruimte${alle?'':` · ${n} van ${P.voorwerpen.length} bekeken`}</div>
+    <div class="voorwerpen">${P.voorwerpen.map(v=>{const g=lijst.includes(v.id);return `<button type="button" class="voorwerp${g?' gevonden':''}" data-vw="${v.id}"><span class="vw-icoon" aria-hidden="true">${v.icoon}</span><span class="vw-naam">${esc(v.naam)}</span>${g?'<span class="vw-ok" aria-label="bekeken">✓</span>':''}</button>`;}).join('')}</div>`;
+}
+function dossierHTML(id){
+  const P=PUZ[id],open=P.dossier.filter((d,i)=>gevonden(id,i)).length;
+  return `<div class="data-kop">Uit het dossier${open<P.dossier.length?` · ${open} van ${P.dossier.length} gegevens gevonden`:''}</div>
+    <dl>${P.dossier.map((d,i)=>{const g=gevonden(id,i);return `<div class="${g?'':'onbekend'}"><dt>${d[0]}</dt><dd>${g?d[1]:'? zoek in de ruimte'}</dd></div>`;}).join('')}</dl>`;
+}
+function koppelZoeken(id){const z=document.getElementById('zoek');if(z)z.addEventListener('click',e=>{const b=e.target.closest('[data-vw]');if(b)openVoorwerp(id,b.dataset.vw);});}
+/* Een voorwerp van dichtbij bekijken; de gegevens gaan naar het dossier en de tekening */
+function openVoorwerp(id,vid){
+  const v=PUZ[id].voorwerpen.find(x=>x.id===vid);if(!v||document.querySelector('.vw-ov'))return;
+  const lijst=S.gevonden[id]||(S.gevonden[id]=[]),nieuw=!lijst.includes(vid);
+  if(nieuw){lijst.push(vid);bewaar();geluid.vondst();}else geluid.klik();
+  const o=document.createElement('div');o.className='zoom vw-ov';
+  o.innerHTML=`<div class="vw-kaart" role="dialog" aria-modal="true" aria-labelledby="vw-t">
+    <div class="vw-groot" aria-hidden="true">${v.icoon}</div><h3 id="vw-t">${esc(v.naam)}</h3>
+    <p class="vw-tekst">${esc(v.tekst)}</p>
+    <div class="small" style="color:${v.rijen.length?'var(--good)':'var(--muted)'}">${v.rijen.length?(nieuw?'✓ Toegevoegd aan het dossier':'Staat al in het dossier'):'Geen nieuwe gegevens, wel goed om te weten.'}</div>
+    <div class="row"><button class="btn" data-close>Terug naar de ruimte</button></div></div>`;
+  document.body.appendChild(o);
+  const sluit=()=>{o.remove();document.removeEventListener('keydown',onKey);const b=document.querySelector(`[data-vw="${vid}"]`);if(b)b.focus();};
+  const onKey=e=>{if(e.key==='Escape')sluit();};
+  o.addEventListener('click',e=>{if(e.target===o||e.target.closest('[data-close]'))sluit();});
+  document.addEventListener('keydown',onKey);o.querySelector('[data-close]').focus();
+  const z=document.getElementById('zoek');if(z)z.innerHTML=zoekHTML(id);
+  const d=document.getElementById('dossier');if(d)d.innerHTML=dossierHTML(id);
+  tekenRuimte(id);
+}
 
 /* De werkbank blijft enkel vast in beeld staan als ze volledig op het scherm past */
 function kleefCheck(){const s=document.querySelector('.scene');if(!s)return;const kop=document.querySelector('header').offsetHeight;s.classList.toggle('kleeft',window.innerWidth>960&&s.offsetHeight<window.innerHeight-kop-24);}
@@ -1094,7 +1211,7 @@ function attempt(id){
   if(r.leeg||r.zacht){out.innerHTML=`<div class="msg info"><b>${r.leeg?'Nog niet volledig':'Let op'}</b>${esc(r.t)}</div>`;return;}
   if(P.na){P.na(r);S.bezig=true;setTimeout(()=>{S.bezig=false;},P.naDuur||800);}
   if(r.ok){S.solved[id]=true;S.nieuw=id;geluid.goed();bewaar();hud();showSolved(id);setTimeout(()=>toonOpgelost(id),(P.naDuur||600)+400);return;}
-  S.fouten++;geluid.fout();penalty(FOUT_STRAF);
+  S.fouten++;S.foutenPer[id]=(S.foutenPer[id]||0)+1;geluid.fout();penalty(FOUT_STRAF);
   out.innerHTML=`<div class="msg no"><b>Fout, −1 minuut</b>${esc(r.t)}</div>`;
   const f=document.getElementById('form');f.classList.remove('wiebel');void f.offsetWidth;f.classList.add('wiebel');
   kleefCheck();
@@ -1107,7 +1224,7 @@ function toonOpgelost(id){
   o.innerHTML=`<div class="solved-card" role="dialog" aria-modal="true" aria-labelledby="sv-t">
     <div class="eyebrow" style="color:var(--good)">Storing verholpen · ruimte ${id} van 6</div>
     <div class="sv-top"><div class="big-letter" aria-label="Letter ${letterVan(id)}">${letterVan(id)}</div>
-      <div><h2 id="sv-t">${esc(ROOMS[id-1].naam)}</h2><p class="small muted">Nieuwe letter voor het wachtwoord. ${Object.keys(S.solved).length} van de 6 storingen opgelost.</p></div></div>
+      <div><h2 id="sv-t">${esc(ROOMS[id-1].naam)}</h2>${S.gm?'':`<div class="sterren" aria-label="${sterrenVoor(id)} van 3 sterren">${sterTekst(sterrenVoor(id))}</div>`}<p class="small muted">Nieuwe letter voor het wachtwoord. ${Object.keys(S.solved).length} van de 6 storingen opgelost.${S.gm?'':sterrenVoor(id)===3?' Zonder hints of fouten!':' Drie sterren krijg je zonder hints en zonder fouten.'}</p></div></div>
     <p>${esc(PUZ[id].uitleg)}</p>
     <div class="row"><button class="btn" data-next>${verder}</button><button class="btn ghost" data-stay>Blijf in deze ruimte</button></div>
   </div>`;
@@ -1151,13 +1268,77 @@ function finale(){
   const go=()=>{if(S.ended)return;
     const v=w.value.trim().toUpperCase();
     if(!v){document.getElementById('out').innerHTML=`<div class="msg info"><b>Nog niet volledig</b>Typ eerst een wachtwoord van zes letters.</div>`;return;}
-    if(v===FINAL_WORD){win();}
+    if(v===FINAL_WORD){geluid.goed();procedure();}
     else{S.fouten++;geluid.fout();penalty(FOUT_STRAF);document.getElementById('out').innerHTML=`<div class="msg no"><b>Toegang geweigerd, −1 minuut</b>Herschik de zes letters.</div>`;}};
   document.getElementById('open').addEventListener('click',go);w.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
 }
 
+/* Finale: de openingsprocedure aan het bedieningspaneel, in de juiste volgorde (de klok loopt door) */
+const PROC=[
+  {id:'slag',t:'Slagbomen sluiten',i:'🚧',ok:'Verkeerslichten op rood, slagbomen dicht. Er rijdt niemand meer op de brug.'},
+  {id:'vergr',t:'Vergrendeling losmaken',i:'🔓',ok:'De neus van het beweegbare brugdek is ontgrendeld.'},
+  {id:'vijzel',t:'Vijzels starten',i:'⚙️',ok:'De vijzels trekken de staartligger omlaag: het brugdek komt omhoog.'}
+];
+function procedure(){
+  if(S.ended)return;
+  let stap=0;
+  const volgorde=PROC.slice().sort(()=>Math.random()-.5);
+  app.innerHTML=`<section class="panel stack">
+    <div class="eyebrow">Brugwachtershuis · bedieningspaneel ontgrendeld</div>
+    <h2>Voer de openingsprocedure uit</h2>
+    <p>Het wachtwoord klopt en het paneel licht op. Druk de drie knoppen in de juiste volgorde. Denk aan wie er nog op de brug rijdt, en aan wat het brugdek op zijn plaats houdt.</p>
+    <div class="paneel">${volgorde.map(p=>`<button type="button" class="pknop" data-p="${p.id}"><span class="plamp" aria-hidden="true"></span><span class="pi" aria-hidden="true">${p.i}</span><span>${p.t}</span></button>`).join('')}</div>
+    <div id="out" aria-live="polite"></div>
+    ${figBox('Langsdoorsnede','',elevation(),'procfig')}
+  </section>`;
+  window.scrollTo(0,0);
+  const out=document.getElementById('out');
+  const reset=()=>{stap=0;app.querySelectorAll('.pknop').forEach(b=>b.classList.remove('aan'));};
+  app.querySelectorAll('.pknop').forEach(b=>b.addEventListener('click',()=>{
+    if(S.ended||stap>=PROC.length)return;
+    const p=PROC[stap];
+    if(b.dataset.p===p.id){
+      b.classList.add('aan');geluid.klik();stap++;
+      out.innerHTML=`<div class="msg ok"><b>Stap ${stap} van 3</b>${esc(p.ok)}</div>`;
+      if(stap===PROC.length)setTimeout(win,900);
+    }else{
+      geluid.fout();
+      const waarom=stap===0?'Eerst het verkeer tegenhouden: er rijden nog wagens over de brug!':b.dataset.p==='vijzel'?'De vergrendeling zit nog vast: de vijzels slaan af.':'Dat kan nu niet in deze volgorde.';
+      out.innerHTML=`<div class="msg no"><b>Noodstop: de procedure begint opnieuw</b>${esc(waarom)}</div>`;
+      reset();
+    }
+  }));
+  app.querySelector('.pknop').focus();
+}
+
+/* Rang en prestaties op het eindscherm, plus het record in deze browser */
+function totaalSterren(){return ROOMS.reduce((s,r)=>s+(S.solved[r.id]?sterrenVoor(r.id):0),0);}
+function rang(st,t){
+  if(st>=16&&t<30*60)return ['Hoofdingenieur bruggen','Bijna zonder hulp en ruim op tijd: de haven is in goede handen.'];
+  if(st>=12)return ['Bruggenbouwer','Stevig werk met weinig hulp.'];
+  if(st>=8)return ['Ingenieur van wacht','De brug is open, al was het hier en daar zoeken.'];
+  return ['Stagiair-brugwachter','Gehaald! Bekijk de uitleg hieronder: de volgende keer gaat het sneller.'];
+}
+function prestaties(t){
+  const f=S.foutenPer||{},p=[];
+  if(S.fouten===0)p.push(['🎯','Foutloos','geen enkel fout antwoord']);
+  if(S.hints===0)p.push(['🧠','Zonder hints','alles zelf uitgerekend']);
+  if(t<30*60)p.push(['⚡','Snelle ingenieur','binnen 30 minuten']);
+  if(!f[2])p.push(['⚖️','Balanskunstenaar','ballastkist in één keer juist']);
+  if(!f[3])p.push(['🌬️','Windbreker','proefopening in één keer geslaagd']);
+  if(!f[4])p.push(['🔩','Opleggingsexpert','opleggingen in één keer juist']);
+  if(!f[6])p.push(['🌡️','Voegspecialist','voeg in één keer juist']);
+  return p;
+}
+function record(st,t){
+  const K=OPSLAG+'-record';let oud=null;try{oud=JSON.parse(localStorage.getItem(K)||'null');}catch(e){}
+  const beter=!oud||st>oud.sterren||(st===oud.sterren&&t<oud.tijd);
+  if(beter){try{localStorage.setItem(K,JSON.stringify({sterren:st,tijd:Math.round(t)}));}catch(e){}}
+  return {beter,oud};
+}
+
 function debrief(titel){
-  return `<div class="stack"><h3>${titel}</h3>${ROOMS.map(r=>`<details class="hint"><summary>${S.solved[r.id]?'✓':'○'} Ruimte ${r.id} · ${esc(r.naam)} <span class="muted small">· ${esc(r.hfst)}</span></summary><p><b>${esc(PUZ[r.id].kern)}</b></p><p>${esc(PUZ[r.id].uitleg)}</p></details>`).join('')}
+  return `<div class="stack"><h3>${titel}</h3>${ROOMS.map(r=>`<details class="hint"><summary>${S.solved[r.id]?'✓':'○'} Ruimte ${r.id} · ${esc(r.naam)}${S.solved[r.id]&&!S.gm?` <span class="st">${sterTekst(sterrenVoor(r.id))}</span>`:''} <span class="muted small">· ${esc(r.hfst)}</span></summary><p><b>${esc(PUZ[r.id].kern)}</b></p><p>${esc(PUZ[r.id].uitleg)}</p></details>`).join('')}
     <p class="small"><a href="#over" data-about>Over dit spel: leerdoelen en bronnen →</a></p></div>`;
 }
 
@@ -1171,22 +1352,32 @@ function animateOpen(el){
 function win(){
   S.ended='win';clearInterval(tick);hud();scherm=win;wis();
   if(!S.eindGeluid){S.eindGeluid=true;geluid.open();setTimeout(()=>geluid.hoorn(0.5),1400);}
-  const t=used();
+  const t=used(),st=totaalSterren();
+  if(S.eindScore==null&&!S.gm)S.eindScore=record(st,t);   /* record maar één keer vergelijken */
+  const [titel,zin]=rang(st,t),rec=S.eindScore;
   app.innerHTML=`<section class="panel stack">
     <div class="eyebrow">Brugwachtershuis · ${klok(START_KLOK+t)}</div>
     <h1>De brug gaat open. De MV Schelde Trader vaart door.</h1>
+    ${S.gm?'<p class="muted">Spelleidermodus: geen score.</p>':`<div class="rang"><div class="rang-titel">${esc(titel)}</div><div class="sterren groot" aria-label="${st} van 18 sterren">★ ${st} / 18</div><p>${esc(zin)}</p>
+      ${rec&&rec.beter?'<div class="badge-rec">🏆 Nieuw record in deze browser!</div>':rec&&rec.oud?`<div class="small muted">Record in deze browser: ★ ${rec.oud.sterren} in ${fmt(rec.oud.tijd)}</div>`:''}</div>`}
     <div class="row" style="gap:28px">
       <div><div class="big good">${S.gm?'—':fmt(t)}</div><div class="muted">gebruikte tijd incl. straf</div></div>
       <div><div class="big" style="color:var(--amber)">${S.hints}</div><div class="muted">hints</div></div>
       <div><div class="big" style="color:var(--amber)">${S.fouten}</div><div class="muted">fouten</div></div>
     </div>
+    ${S.gm?'':`<div class="prestaties">${prestaties(t).map(([i,n,u])=>`<div class="prestatie"><span aria-hidden="true">${i}</span><div><b>${n}</b><small>${u}</small></div></div>`).join('')||'<p class="small muted">Nog geen prestaties: probeer het opnieuw zonder hints of fouten.</p>'}</div>`}
     <div class="radio">📻 "Vaartdokbrug, hier de Schelde Trader. Mooi werk, ingenieurs. Over en sluiten."</div>
     ${figBox('Langsdoorsnede · beweegbaar brugdek open (75°)','licht sluitend moment · vijzels 2 × 250 kN','','elevfig')}
+    <div class="fig"><div class="cap"><span>Bovenaanzicht · de Schelde Trader vaart door</span><span></span></div><svg viewBox="0 0 1000 300" xmlns="http://www.w3.org/2000/svg" id="doorvaart" role="img" aria-label="Het schip vaart door de geopende brug"></svg></div>
     ${debrief('Wat hebben jullie toegepast?')}
     <div class="row"><button class="btn" id="again">Opnieuw spelen</button></div>
   </section>`;
   window.scrollTo(0,0);
   animateOpen(document.querySelector('#elevfig .fig-svg'));
+  /* bovenaanzicht: eerst gaat het brugdek open, daarna vaart het schip er doorheen */
+  const dv=document.getElementById('doorvaart');
+  animeer(1300,p=>{if(dv.isConnected)dv.innerHTML=plan({shipY:300,open:75*zacht(p)});},
+    ()=>animeer(3200,p=>{if(dv.isConnected)dv.innerHTML=plan({shipY:300-460*p,open:75});}));
   document.getElementById('again').addEventListener('click',()=>location.reload());
 }
 
