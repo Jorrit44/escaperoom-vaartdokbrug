@@ -50,6 +50,7 @@ De voortgang wordt in de browser bewaard: wie de pagina vernieuwt, kan op het st
 - **v12:** voortgang bewaren en hervatten, radioberichten van het schip en geluid (met dempknop), letters van de finale per spel in willekeurige volgorde, en een interactieve ballastkist in ruimte 2: blokken bijleggen en de balans testen, waarbij het brugdek zichtbaar reageert.
 - **v13:** vlottere indeling en controlekamerstijl: elke ruimte is een werkbank (tekening met de bediening eronder, rechts opdracht, cursus, gegevens en hints), een beloningsscherm met de nieuwe letter na elke opgeloste ruimte, statuslampjes in de routebalk, een kaartknop in plaats van de grote "Je bent hier"-tekening, gegevens in een compact raster, zachte overgangen en een titelscherm.
 - **v14:** ruimte 3, 4 en 6 interactief: vijzelkracht instellen met een schuifknop en een proefopening tegen de wind (het brugdek blijft steken of zwaait met een schok open), opleggingen aanklikken in de tekening en testen bij +54 °C (wat klemt kleurt rood, wat te vrij staat oranje), en een voegtest van −18 tot +54 °C met een meter die toont wat elk voegtype kan opnemen.
+- **v15:** ruimte 1 en 5 interactief: na het bevestigen toont elk vakje van tabel 18.1 een animatie van hoe het gekozen brugtype echt beweegt (met ✓ of ✗), en de remkracht wordt in twee delen ingevuld met een meter voor de grenzen van 180 en 800 kN en een vrachtwagen die op het dek remt.
 
 ## Gebruik van AI
 
