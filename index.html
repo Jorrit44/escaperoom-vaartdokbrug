@@ -89,9 +89,12 @@ table.dossier td.n{font-family:var(--mono);text-align:right;font-variant-numeric
 .lock input{font-family:var(--mono);font-size:26px;font-weight:600;width:140px;text-align:center;background:#0a131b;color:var(--amber);border:1px solid var(--line);border-radius:6px;padding:6px}
 .lock input.word{width:220px;text-transform:uppercase;letter-spacing:.2em}
 select{background:#0a131b;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%}
-.grid18{display:grid;grid-template-columns:70px 1fr 1fr;gap:8px;align-items:center}
-.grid18 .h{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.grid18 .ax{font-family:var(--mono);font-size:13px;color:var(--amber)}
+.grid18{display:grid;grid-template-columns:84px minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center}
+.grid18 .h{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--amber);line-height:1.3;align-self:end}
+.grid18 .h small,.grid18 .ax small,.vb small{display:block;font-size:11px;letter-spacing:.04em;text-transform:none;color:var(--muted)}
+.grid18 .ax{font-family:var(--mono);font-size:14px;color:var(--amber);line-height:1.2}
+.vb{border:1px dashed var(--line);border-radius:6px;padding:5px 10px;color:var(--ink);background:#0a131b;line-height:1.3}
+.step{font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--amber);border-top:1px solid var(--line);padding-top:12px}
 .msg{border-left:4px solid var(--line);background:#0f1d2a;padding:10px 12px;border-radius:0 6px 6px 0}
 .msg.ok{border-color:var(--good)}
 .msg.no{border-color:var(--bad)}
@@ -301,8 +304,10 @@ function radar(){
 
 /* ------- detailtekeningen per ruimte ------- */
 function axesSVG(){
-  return `<svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Assenstelsel van een brug">
-  <rect width="600" height="300" fill="#0d1822"/>
+  const mk=`<marker id="ax-arr" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#c9d4dd"/></marker><marker id="ax-arr-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#7fb0ff"/></marker>`;
+  return `<svg viewBox="0 0 600 376" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Assenstelsel van een brug, met het verschil tussen rotatie en translatie">
+  <defs>${mk}</defs>
+  <rect width="600" height="376" fill="#0d1822"/>
   <polygon points="90,200 400,200 520,140 210,140" fill="#55687a" stroke="#9fb3c6" stroke-width="2"/>
   <line x1="150" y1="170" x2="470" y2="170" stroke="#f2a33a" stroke-width="3"/><polygon points="470,163 486,170 470,177" fill="#f2a33a"/>
   <text x="494" y="175" ${MONO} font-size="16" fill="#f2a33a">x · brugas</text>
@@ -310,7 +315,14 @@ function axesSVG(){
   <text x="200" y="272" ${MONO} font-size="16" fill="#4cc38a">y · dwars</text>
   <line x1="300" y1="170" x2="300" y2="74" stroke="#7fb0ff" stroke-width="3"/><polygon points="293,78 300,62 307,78" fill="#7fb0ff"/>
   <text x="312" y="76" ${MONO} font-size="16" fill="#7fb0ff">z · verticaal</text>
-  <text x="20" y="34" ${MONO} font-size="13" fill="#93a4b3">ROTATIE OM OF TRANSLATIE VOLGENS WELKE AS?</text></svg>`;
+  <path d="M268 116 A34 10 0 1 0 332 116" fill="none" stroke="#7fb0ff" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#ax-arr-b)"/>
+  <text x="352" y="122" ${MONO} font-size="13" fill="#7fb0ff">voorbeeld: draaibrug</text>
+  <text x="20" y="34" ${MONO} font-size="13" fill="#93a4b3">ROTATIE OM OF TRANSLATIE VOLGENS WELKE AS?</text>
+  <line x1="20" y1="296" x2="580" y2="296" stroke="#2a3d4f"/>
+  <path d="M30 326 A12 12 0 1 1 50 330" fill="none" stroke="#c9d4dd" stroke-width="2.5" marker-end="url(#ax-arr)"/>
+  <text x="70" y="328" ${MONO} font-size="13" fill="#c9d4dd">rotatie om een as: het brugdek draait rond die as</text>
+  <line x1="22" y1="356" x2="58" y2="356" stroke="#c9d4dd" stroke-width="2.5" marker-start="url(#ax-arr)" marker-end="url(#ax-arr)"/>
+  <text x="70" y="361" ${MONO} font-size="13" fill="#c9d4dd">translatie volgens een as: het brugdek schuift langs die as</text></svg>`;
 }
 function ballastSVG(){
   const PX=20,HX=330,x=m=>HX+m*PX;
@@ -424,30 +436,36 @@ function jointSVG(){
    check() geeft {ok}, {leeg} (niets ingevuld, geen straf), {zacht} (opmerking, geen straf) of {t} (fout)
    ===================================================================== */
 const OPTS18=['afzinkbare brug','basculebrug','draaibrug','hefbrug','kantelbrug','ophaalbrug','opvouwbrug','rolbrug','tafelbrug','vlotbrug','zweefbrug','bestaat niet'];
+const VB18='z-r';   /* dit vakje staat al ingevuld als voorbeeld */
 const OK18={'x-r':['kantelbrug'],'x-t':['rolbrug','zweefbrug','opvouwbrug','vlotbrug'],'y-r':['ophaalbrug','basculebrug'],'y-t':['bestaat niet'],'z-r':['draaibrug'],'z-t':['hefbrug','tafelbrug','afzinkbare brug']};
 
 const PUZ={
 1:{
   titel:'Het systeem herkent de brug niet meer',
-  tekst:'Na de stroompanne staat het besturingssysteem in fabrieksinstelling. Het vraagt eerst de indeling van beweegbare bruggen volgens hun beweging, zoals in tabel 18.1 van de cursus. Vul elk vak in met een brugtype dat zo beweegt; voor één vak bestaat er geen type. Geef daarna aan welk type de Vaartdokbrug is.',
+  tekst:'Na de stroompanne staat het besturingssysteem in fabrieksinstelling. Om op te starten vraagt het twee dingen: eerst tabel 18.1 uit de cursus (welke beweegbare brug beweegt op welke manier), daarna het type van de Vaartdokbrug zelf.',
   fig:()=>axesSVG(),
-  form:()=>`<div class="grid18"><span></span><span class="h">rotatie om</span><span class="h">translatie volgens</span>
-    ${['x','y','z'].map(a=>`<span class="ax">${a}-as</span>${['r','t'].map(k=>`<select id="g-${a}-${k}" aria-label="${a}-as ${k==='r'?'rotatie':'translatie'}"><option value="">kies…</option>${OPTS18.map(o=>`<option>${o}</option>`).join('')}</select>`).join('')}`).join('')}</div>
-    <label for="g-ons" class="small">En welk type is de Vaartdokbrug zelf? (bekijk de langsdoorsnede)</label>
+  form:()=>`<div class="step">Stap 1 · Vul tabel 18.1 aan</div>
+    <p class="small">Elke <b>rij</b> is een as van de brug (zie de tekening). Elke <b>kolom</b> is een manier van bewegen: <b>rotatie om</b> de as (het brugdek draait rond die as) of <b>translatie volgens</b> de as (het brugdek schuift langs die as). Kies in elk vakje een brugtype dat zo beweegt. Voor één vakje bestaat er geen brugtype: kies daar "bestaat niet".</p>
+    <div class="grid18"><span></span><span class="h">rotatie om de as<small>draait rond de as</small></span><span class="h">translatie volgens de as<small>schuift langs de as</small></span>
+    ${[['x','brugas'],['y','dwars'],['z','verticaal']].map(([a,n])=>`<span class="ax">${a}-as<small>${n}</small></span>${['r','t'].map(k=>a+'-'+k===VB18?`<div class="vb" id="g-${a}-${k}">draaibrug<small>voorbeeld</small></div>`:`<select id="g-${a}-${k}" aria-label="${a}-as, ${k==='r'?'rotatie om de as':'translatie volgens de as'}"><option value="">kies…</option>${OPTS18.map(o=>`<option>${o}</option>`).join('')}</select>`).join('')}`).join('')}</div>
+    <p class="small muted">Voorbeeld: een draaibrug draait rond de verticale as, dus hoort ze bij z-as · rotatie.</p>
+    <div class="step">Stap 2 · Welk type is de Vaartdokbrug?</div>
+    <label for="g-ons" class="small">Bekijk de langsdoorsnede bovenaan: hoe beweegt het brugdek, en waar zit het contragewicht?</label>
     <select id="g-ons"><option value="">kies…</option>${['kantelbrug','ophaalbrug','basculebrug','draaibrug','hefbrug','tafelbrug'].map(o=>`<option>${o}</option>`).join('')}</select>
     <button class="btn" id="try">Bevestig</button>`,
   check(){
-    const keys=Object.keys(OK18);
-    if(keys.some(k=>!document.getElementById('g-'+k).value)||!document.getElementById('g-ons').value)return {leeg:true,t:'Vul eerst alle zeven vakken in.'};
+    const keys=Object.keys(OK18).filter(k=>k!==VB18);
+    if(keys.some(k=>!document.getElementById('g-'+k).value))return {leeg:true,t:'Vul eerst alle vakjes van de tabel in (stap 1).'};
+    if(!document.getElementById('g-ons').value)return {leeg:true,t:'Kies ook het type van de Vaartdokbrug (stap 2).'};
     let n=0;for(const k of keys){if(OK18[k].includes(document.getElementById('g-'+k).value))n++;}
     const ons=document.getElementById('g-ons').value;
-    if(n===6&&ons==='basculebrug')return {ok:true};
-    if(n===6&&ons==='ophaalbrug')return {t:'De tabel klopt. Maar een ophaalbrug heeft een balans boven op een portaal. Bij deze brug zit het contragewicht aan de staartligger, in een kelder.'};
-    if(n===6)return {t:'De tabel klopt. Kijk nu naar de langsdoorsnede: hoe beweegt het brugdek, en waar zit het contragewicht?'};
-    return {t:`${n} van de 6 vakken zijn juist. Kijk naar tabel 18.1: welke beweging maakt elk type, en om of volgens welke as?`};
+    if(n===keys.length&&ons==='basculebrug')return {ok:true};
+    if(n===keys.length&&ons==='ophaalbrug')return {t:'De tabel klopt. Maar een ophaalbrug heeft een balans boven op een portaal. Bij deze brug zit het contragewicht aan de staartligger, in een kelder.'};
+    if(n===keys.length)return {t:'De tabel klopt. Kijk nu naar de langsdoorsnede: hoe beweegt het brugdek, en waar zit het contragewicht?'};
+    return {t:`${n} van de ${keys.length} vakjes in de tabel zijn juist. Vraag je per brugtype af: draait het brugdek of schuift het, en rond of langs welke as?`};
   },
   cursus:'XVIII §1 (p. 208), tabel 18.1: beweegbare bruggen worden ingedeeld volgens de wijze van bewegen: rotatie om of translatie volgens de x-as (de brugas), de y-as (horizontaal, dwars op de brug) of de z-as (verticaal).',
-  hints:['Een draaibrug draait in een horizontaal vlak: om welke as is dat? Een hefbrug gaat recht omhoog: volgens welke as? Een kantelbrug draait om de brugas zelf.','Het vak zonder brugtype is translatie volgens de y-as. De Vaartdokbrug heeft een ballastkist aan een staartligger in een kelder: dat is een basculebrug (XVIII §3.2).'],
+  hints:['Een kantelbrug draait rond de brugas zelf. Een hefbrug gaat recht omhoog: volgens welke as? Een rolbrug schuift over de oever weg: volgens welke as? Een ophaalbrug klapt omhoog: rond welke as draait ze?','Het vakje zonder brugtype is translatie volgens de y-as. De Vaartdokbrug heeft een ballastkist aan een staartligger in een kelder: dat is een basculebrug (XVIII §3.2).'],
   kern:'Indeling van beweegbare bruggen volgens hun beweging (tabel 18.1). Een basculebrug roteert om de y-as.',
   uitleg:'Het systeem start op: "Type: basculebrug, rotatie om de y-as." Bij een basculebrug draait het beweegbare brugdek om een horizontale as dwars op de brug, en wordt het in evenwicht gehouden door een ballastkist aan het einde van de staartligger. Die ballastkist staat in de kelder, dus daar gaan jullie nu naartoe.'
 },
